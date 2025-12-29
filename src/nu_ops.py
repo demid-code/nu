@@ -1,0 +1,37 @@
+from enum import IntEnum, auto
+from dataclasses import dataclass
+
+from nu_tokens import Token
+
+class OpType(IntEnum):
+    # push
+    PUSH_INT = auto()
+    PUSH_FLOAT = auto()
+    PUSH_STRING = auto()
+
+    # +, -, *, /
+    PLUS = auto()
+
+    # Built-in
+    PRINT = auto()
+
+    # Specific
+    EOF = auto()
+
+WORD_TO_OP = {
+    # +, -, *, /
+    "+": OpType.PLUS,
+
+    # Built-in
+    "print": OpType.PRINT,
+}
+
+@dataclass
+class Op:
+    type: OpType
+    token: Token
+    operand: any
+
+    def __repr__(self) -> str:
+        operand = f"{f", {self.operand}" if self.operand != None else ""}"
+        return f"{self.type.name}{operand}"
