@@ -67,6 +67,9 @@ class Compiler:
             case OpType.PRINT:
                 self.writeln("value_print(stack_pop(&stack));", 2)
 
+            case OpType.CMACRO:
+                self.writeln(f"{op.token.text}", 2)
+
             case OpType.EOF:
                 write_jump = False
                 self.writeln("stack_free(&stack);", 2)

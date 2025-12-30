@@ -42,6 +42,9 @@ class Parser:
                 else:
                     report_error(f"`{token.text}` is not built-in", token.loc)
 
+            case TokenType.CMACRO:
+                self.add_op(OpType.CMACRO, token, None)
+
             case _:
                 assert False, f"Unsupported TokenType.{token.type.name} in Parser.make_op()"
 

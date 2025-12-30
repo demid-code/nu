@@ -24,6 +24,7 @@ class OpType(IntEnum):
     PRINT = auto()
 
     # Specific
+    CMACRO = auto()
     EOF = auto()
 
 WORD_TO_OP = {

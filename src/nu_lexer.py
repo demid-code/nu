@@ -16,9 +16,14 @@ class Lexer:
         self.source = read_file(filepath)
 
         self.tokens = []
+        self.cmacros = {}
 
         self.start = 0
         self.current = 0
+
+    def update_pos(self):
+        self.loc.col += self.current - self.start
+        self.start = self.current
 
     def is_at_end(self) -> bool:
         return self.current >= len(self.source)
@@ -41,8 +46,12 @@ class Lexer:
         
         return False
 
-    def add_token(self, token_type: TokenType):
-        self.tokens.append(Token(token_type, self.source[self.start:self.current], self.loc.copy()))
+    def match_str(self, string: str) -> bool:
+        if self.current + len(string) > len(self.source): return False
+        return self.source[self.current:self.current + len(string)] == string
+
+    def add_token(self, token_type: TokenType, text: str = None):
+        self.tokens.append(Token(token_type, text or self.source[self.start:self.current], self.loc.copy()))
 
     def skip_comment(self):
         if self.match("/"):
@@ -51,9 +60,53 @@ class Lexer:
         else:
             self.add_token(TokenType.WORD)
 
-    def make_word(self):
+    def skip_whitespace(self):
+        while not self.is_at_end() and self.is_whitespace(self.peek()):
+            self.advance()
+
+    def lex_word(self) -> str:
         while not self.is_at_end() and not self.is_whitespace(self.peek()):
             self.advance()
+
+        return self.source[self.start:self.current]
+
+    def make_word(self):
+        word = self.lex_word()
+
+        if word == "cmacro":
+            self.skip_whitespace()
+            self.update_pos()
+
+            name = self.lex_word()
+            
+            if name.strip() == "":
+                report_error("Expected cmacro name", self.loc)
+
+            self.skip_whitespace()
+            self.update_pos()
+
+            found_end = False
+            while not self.is_at_end():
+                if self.match_str("endcmacro"):
+                    found_end = True
+                    break
+                self.advance()
+
+            # self.update_pos()
+            if not found_end:
+                report_error("Expected `endcmacro` to close cmacro", self.loc)
+
+            body = self.source[self.start:self.current]
+            self.cmacros[name] = body
+
+            self.current += 9
+            self.update_pos()
+
+            return
+        elif word in self.cmacros:
+            self.add_token(TokenType.CMACRO, self.cmacros[word])
+            
+            return
 
         self.add_token(TokenType.WORD)
 
@@ -111,8 +164,7 @@ class Lexer:
 
     def lex(self) -> list[Token]:
         while not self.is_at_end():
-            self.loc.col += self.current - self.start
-            self.start = self.current
+            self.update_pos()
             self.make_token()
-        
+
         return self.tokens
