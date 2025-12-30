@@ -12,6 +12,11 @@ class OpType(IntEnum):
     # +, -, *, /
     PLUS = auto()
 
+    # Type conversions
+    TO_INT = auto()
+    TO_FLOAT = auto()
+    TO_BOOL = auto()
+
     # Built-in
     PRINT = auto()
 
@@ -21,6 +26,11 @@ class OpType(IntEnum):
 WORD_TO_OP = {
     # +, -, *, /
     "+": OpType.PLUS,
+
+    # Type conversions
+    "$int":   OpType.TO_INT,
+    "$float": OpType.TO_FLOAT,
+    "$bool":  OpType.TO_BOOL,
 
     # Built-in
     "print": OpType.PRINT,

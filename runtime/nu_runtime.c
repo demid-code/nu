@@ -19,14 +19,8 @@ Value value_add(Value a, Value b) {
         switch (a.type) {
         case TYPE_INT:   return VAL_INT(AS_INT(a) + AS_INT(b));
         case TYPE_FLOAT: return VAL_FLOAT(AS_FLOAT(a) + AS_FLOAT(b));
-        case TYPE_BOOL:  {
-            fprintf(stderr, "Can't add booleans\n");
-            exit(1);
-        }
-        case TYPE_PTR: {
-            fprintf(stderr, "Can't add pointers\n");
-            exit(1);
-        }
+        case TYPE_BOOL:  ERROR("Can't add booleans");
+        case TYPE_PTR:   ERROR("Can't add pointers");
         }
     } else {
         if (IS_INT(a) && IS_FLOAT(b)) return VAL_FLOAT((double)AS_INT(a) + AS_FLOAT(b));
@@ -37,16 +31,40 @@ Value value_add(Value a, Value b) {
     }
 }
 
+Value value_to_int(Value val) {
+    switch (val.type) {
+    case TYPE_INT:   return val;
+    case TYPE_FLOAT: return VAL_INT(AS_FLOAT(val));
+    case TYPE_BOOL:  return VAL_INT(AS_BOOL(val));
+    case TYPE_PTR:   ERROR("Can't convert ptr to int");
+    }
+}
+
+Value value_to_float(Value val) {
+    switch (val.type) {
+    case TYPE_INT:   return VAL_FLOAT(AS_INT(val));
+    case TYPE_FLOAT: return val;
+    case TYPE_BOOL:  return VAL_FLOAT(AS_BOOL(val));
+    case TYPE_PTR:   ERROR("Can't convert ptr to float");
+    }
+}
+
+Value value_to_bool(Value val) {
+    switch (val.type) {
+    case TYPE_INT:   return VAL_BOOL(AS_INT(val));
+    case TYPE_FLOAT: return VAL_BOOL(AS_FLOAT(val));
+    case TYPE_BOOL:  return val;
+    case TYPE_PTR:   ERROR("Can't convert ptr to bool");
+    }
+}
+
 // STACK
 
 void stack_init(ValueStack* s) {
     s->size = 0;
     s->capacity = 8;
     s->data = (Value*)malloc(s->capacity * sizeof(Value));
-    if (!s->data) {
-        fprintf(stderr, "Failed to allocate memory in stack_init\n");
-        exit(1);
-    }
+    if (!s->data) ERROR("Failed to allocate memory in stack_init");
 }
 
 void stack_free(ValueStack* s) {
@@ -60,20 +78,14 @@ void stack_push(ValueStack* s, Value val) {
     if (s->size >= s->capacity) {
         s->capacity *= 2;
         s->data = (Value*)realloc(s->data, s->capacity * sizeof(Value));
-        if (!s->data) {
-            fprintf(stderr, "Failed to reallocate memory in stack_push\n");
-            exit(1);
-        }
+        if (!s->data) ERROR("Failed to reallocate memory in stack_push");
     }
 
     s->data[s->size++] = val;
 }
 
 Value stack_pop(ValueStack* s) {
-    if (s->size <= 0) {
-        fprintf(stderr, "Stack underflow\n");
-        exit(1);
-    }
+    if (s->size <= 0) ERROR("Stack underflow");
 
     return s->data[--s->size];
 }

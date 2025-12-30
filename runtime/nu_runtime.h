@@ -4,6 +4,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#define ERROR(msg) \
+    do { \
+        fprintf(stderr, "Error: %s\n", msg); \
+        exit(1); \
+    } while (0)
+
 // VALUE
 
 typedef enum {
@@ -41,6 +47,10 @@ typedef struct {
 void value_print(Value val);
 
 Value value_add(Value a, Value b);
+
+Value value_to_int(Value val);
+Value value_to_float(Value val);
+Value value_to_bool(Value val);
 
 // STACK
 
