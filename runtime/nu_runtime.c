@@ -27,6 +27,7 @@ Value value_add(Value a, Value b) {
         else if (IS_FLOAT(a) && IS_INT(b)) return VAL_FLOAT(AS_FLOAT(a) + (double)AS_INT(b));
         else if (IS_PTR(a) && IS_INT(b))   return VAL_PTR(AS_PTR(a) + AS_INT(b));
         else if (IS_INT(a) && IS_PTR(b))   return VAL_PTR(AS_PTR(b) + AS_INT(a));
+        ERROR("Invalid types in value_add");
     }
 }
 
@@ -43,6 +44,37 @@ Value value_sub(Value a, Value b) {
         else if (IS_FLOAT(a) && IS_INT(b)) return VAL_FLOAT(AS_FLOAT(a) - (double)AS_INT(b));
         else if (IS_PTR(a) && IS_INT(b))   return VAL_PTR(AS_PTR(a) - AS_INT(b));
         else if (IS_INT(a) && IS_PTR(b))   return VAL_PTR(AS_PTR(b) - AS_INT(a));
+        ERROR("Invalid types in value_sub");
+    }
+}
+
+Value value_mul(Value a, Value b) {
+    if (a.type == b.type) {
+        switch (a.type) {
+        case TYPE_INT:   return VAL_INT(AS_INT(a) * AS_INT(b));
+        case TYPE_FLOAT: return VAL_FLOAT(AS_FLOAT(a) * AS_FLOAT(b));
+        case TYPE_BOOL:  ERROR("Can't multiply booleans");
+        case TYPE_PTR:   ERROR("Can't multiply pointers");
+        }
+    } else {
+        if (IS_INT(a) && IS_FLOAT(b))      return VAL_FLOAT((double)AS_INT(a) * AS_FLOAT(b));
+        else if (IS_FLOAT(a) && IS_INT(b)) return VAL_FLOAT(AS_FLOAT(a) * (double)AS_INT(b));
+        ERROR("Invalid types in value_mul");
+    }
+}
+
+Value value_div(Value a, Value b) {
+    if (a.type == b.type) {
+        switch (a.type) {
+        case TYPE_INT:   return VAL_FLOAT(AS_INT(a) / AS_INT(b));
+        case TYPE_FLOAT: return VAL_FLOAT(AS_FLOAT(a) / AS_FLOAT(b));
+        case TYPE_BOOL:  ERROR("Can't divide booleans");
+        case TYPE_PTR:   ERROR("Can't divide pointers");
+        }
+    } else {
+        if (IS_INT(a) && IS_FLOAT(b))      return VAL_FLOAT((double)AS_INT(a) / AS_FLOAT(b));
+        else if (IS_FLOAT(a) && IS_INT(b)) return VAL_FLOAT(AS_FLOAT(a) / (double)AS_INT(b));
+        ERROR("Invalid types in value_div");
     }
 }
 
