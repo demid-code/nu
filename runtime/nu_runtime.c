@@ -23,11 +23,26 @@ Value value_add(Value a, Value b) {
         case TYPE_PTR:   ERROR("Can't add pointers");
         }
     } else {
-        if (IS_INT(a) && IS_FLOAT(b)) return VAL_FLOAT((double)AS_INT(a) + AS_FLOAT(b));
-        if (IS_FLOAT(a) && IS_INT(b)) return VAL_FLOAT(AS_FLOAT(a) + (double)AS_INT(b));
-        if (IS_PTR(a) && IS_INT(b)) {
-            return VAL_PTR(a.as.ptrVal + AS_INT(b));
+        if (IS_INT(a) && IS_FLOAT(b))      return VAL_FLOAT((double)AS_INT(a) + AS_FLOAT(b));
+        else if (IS_FLOAT(a) && IS_INT(b)) return VAL_FLOAT(AS_FLOAT(a) + (double)AS_INT(b));
+        else if (IS_PTR(a) && IS_INT(b))   return VAL_PTR(AS_PTR(a) + AS_INT(b));
+        else if (IS_INT(a) && IS_PTR(b))   return VAL_PTR(AS_PTR(b) + AS_INT(a));
+    }
+}
+
+Value value_sub(Value a, Value b) {
+    if (a.type == b.type) {
+        switch (a.type) {
+        case TYPE_INT:   return VAL_INT(AS_INT(a) - AS_INT(b));
+        case TYPE_FLOAT: return VAL_FLOAT(AS_FLOAT(a) - AS_FLOAT(b));
+        case TYPE_BOOL:  ERROR("Can't subtract booleans");
+        case TYPE_PTR:   ERROR("Can't subtract pointers");
         }
+    } else {
+        if (IS_INT(a) && IS_FLOAT(b))      return VAL_FLOAT((double)AS_INT(a) - AS_FLOAT(b));
+        else if (IS_FLOAT(a) && IS_INT(b)) return VAL_FLOAT(AS_FLOAT(a) - (double)AS_INT(b));
+        else if (IS_PTR(a) && IS_INT(b))   return VAL_PTR(AS_PTR(a) - AS_INT(b));
+        else if (IS_INT(a) && IS_PTR(b))   return VAL_PTR(AS_PTR(b) - AS_INT(a));
     }
 }
 

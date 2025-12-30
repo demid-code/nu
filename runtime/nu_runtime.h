@@ -47,6 +47,7 @@ typedef struct {
 void value_print(Value val);
 
 Value value_add(Value a, Value b);
+Value value_sub(Value a, Value b);
 
 Value value_to_int(Value val);
 Value value_to_float(Value val);

@@ -11,6 +11,7 @@ class OpType(IntEnum):
 
     # +, -, *, /
     PLUS = auto()
+    MINUS = auto()
 
     # Type conversions
     TO_INT = auto()
@@ -26,6 +27,7 @@ class OpType(IntEnum):
 WORD_TO_OP = {
     # +, -, *, /
     "+": OpType.PLUS,
+    "-": OpType.MINUS,
 
     # Type conversions
     "$int":   OpType.TO_INT,
