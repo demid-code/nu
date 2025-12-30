@@ -34,7 +34,7 @@ class Parser:
                 self.add_op(OpType.PUSH_INT, token, ord(char))
 
             case TokenType.STRING:
-                self.add_op(OpType.PUSH_STRING, token, token.text)
+                self.add_op(OpType.PUSH_CSTRING, token, token.text[1:-1].encode().decode("unicode_escape"))
 
             case TokenType.WORD:
                 if token.text in WORD_TO_OP:

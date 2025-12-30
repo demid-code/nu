@@ -5,6 +5,8 @@ class Compiler:
         self.ops = ops
         self.current = 0
 
+        self.strs = []
+
         self.writes = {"init": "", "main": ""}
         self.write_mode = None
 
@@ -34,6 +36,12 @@ class Compiler:
 
             case OpType.PUSH_FLOAT:
                 self.writeln(f"stack_push(&stack, VAL_FLOAT({op.operand}));", 2)
+
+            case OpType.PUSH_CSTRING:
+                if not op.operand in self.strs:
+                    self.strs.append(op.operand)
+
+                self.writeln(f"stack_push(&stack, VAL_PTR(strs[{self.strs.index(op.operand)}]));", 2)
 
             case OpType.PLUS:
                 self.writeln("Value b = stack_pop(&stack);", 2)
@@ -91,6 +99,9 @@ class Compiler:
         
         self.writeln("ValueStack stack;", 1)
         self.writeln("stack_init(&stack);\n", 1)
+
+        if len(self.strs) > 0:
+            self.writeln("char* strs[] = {%s};" % ", ".join([f"\"{s.encode("unicode_escape").decode()}\"" for s in self.strs]), 1)
         
         self.writeln("goto addr_0;\n", 1)
 
