@@ -62,6 +62,8 @@ class Lexer:
 
     def skip_whitespace(self):
         while not self.is_at_end() and self.is_whitespace(self.peek()):
+            if self.peek() == "\n":
+                self.loc.line += 1
             self.advance()
 
     def lex_word(self) -> str:
@@ -90,6 +92,8 @@ class Lexer:
                 if self.match_str("endcmacro"):
                     found_end = True
                     break
+                if self.peek() == "\n":
+                    self.loc.line += 1
                 self.advance()
 
             # self.update_pos()
