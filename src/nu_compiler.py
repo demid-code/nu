@@ -78,6 +78,19 @@ class Compiler:
                 self.writeln("Value a = stack_pop(&stack);", 2)
                 self.writeln("stack_push(&stack, value_less(a, b));", 2)
 
+            case OpType.NOT:
+                self.writeln("stack_push(&stack, value_not(stack_pop(&stack)));", 2)
+
+            case OpType.AND:
+                self.writeln("Value b = stack_pop(&stack);", 2)
+                self.writeln("Value a = stack_pop(&stack);", 2)
+                self.writeln("stack_push(&stack, value_and(a, b));", 2)
+
+            case OpType.OR:
+                self.writeln("Value b = stack_pop(&stack);", 2)
+                self.writeln("Value a = stack_pop(&stack);", 2)
+                self.writeln("stack_push(&stack, value_or(a, b));", 2)
+
             case OpType.TO_INT:
                 self.writeln("stack_push(&stack, value_to_int(stack_pop(&stack)));", 2)
 

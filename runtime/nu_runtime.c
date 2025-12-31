@@ -119,6 +119,18 @@ Value value_less(Value a, Value b) {
     }
 }
 
+Value value_not(Value val) {
+    return VAL_BOOL(!AS_BOOL(value_to_bool(val)));
+}
+
+Value value_and(Value a, Value b) {
+    return VAL_BOOL(AS_BOOL(value_to_bool(a)) && AS_BOOL(value_to_bool(b)));
+}
+
+Value value_or(Value a, Value b) {
+    return VAL_BOOL(AS_BOOL(value_to_bool(a)) || AS_BOOL(value_to_bool(b)));
+}
+
 Value value_to_int(Value val) {
     switch (val.type) {
     case TYPE_INT:   return val;

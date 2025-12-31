@@ -55,6 +55,10 @@ Value value_equal(Value a, Value b);
 Value value_greater(Value a, Value b);
 Value value_less(Value a, Value b);
 
+Value value_not(Value val);
+Value value_and(Value a, Value b);
+Value value_or(Value a, Value b);
+
 Value value_to_int(Value val);
 Value value_to_float(Value val);
 Value value_to_bool(Value val);
