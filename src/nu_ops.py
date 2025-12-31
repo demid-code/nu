@@ -22,6 +22,7 @@ class OpType(IntEnum):
 
     # Built-in
     PRINT = auto()
+    DROP = auto()
     PICK = auto()
 
     # Specific
@@ -42,6 +43,7 @@ WORD_TO_OP = {
 
     # Built-in
     "print": OpType.PRINT,
+    "drop":  OpType.DROP,
     "pick":  OpType.PICK,
 }
 
