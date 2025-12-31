@@ -50,8 +50,8 @@ def main():
                     print(token)
                 return
             
-            pre_parser = PreParser(tokens)
-            tokens = pre_parser.pre_parse()
+            pre_parser = PreParser(tokens, [nu_path, filepath.parent], [filepath])
+            tokens, _ = pre_parser.pre_parse()
             if len(tokens) <= 0: return
 
             parser = Parser(tokens)

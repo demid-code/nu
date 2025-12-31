@@ -1,10 +1,16 @@
+from pathlib import Path
+
 from nu_error import report_error
 from nu_tokens import TokenType, Token
+from nu_lexer import Lexer
 
 class PreParser:
-    def __init__(self, tokens: list[Token]):
+    def __init__(self, tokens: list[Token], include_paths: list[Path] = [], included_paths: list[Path] = []):
         self.tokens = tokens
         self.current = 0
+
+        self.include_paths = include_paths
+        self.included_paths = included_paths
 
         self.macros = {}
 
@@ -55,6 +61,41 @@ class PreParser:
         self.tokens[token_idx:token_idx+1] = self.macros[token.text]["body"]
         self.current = token_idx
 
+    def parse_include(self):
+        include, include_idx = self.peek(-1)
+
+        if self.is_at_end():
+            report_error("Expected path to include", include.loc)
+
+        path_token, path_idx = self.advance()
+        if path_token.type != TokenType.STRING:
+            report_error("Expected path to be a string", path_token.loc)
+
+        path = Path(path_token.text[1:-1].encode().decode("unicode_escape")).resolve()
+        
+        for include_path in self.include_paths:
+            final_path = include_path.joinpath(path).resolve()
+
+            if not final_path.exists():
+                continue
+
+            if final_path in self.included_paths:
+                continue
+            
+            included_tokens = Lexer(final_path).lex()
+            included_tokens, macros = PreParser(included_tokens, self.include_paths + [final_path.parent], self.included_paths + [final_path]).pre_parse()
+
+            self.macros.update(macros)
+            self.tokens[include_idx:path_idx+1] = included_tokens
+            self.current = include_idx
+
+            self.included_paths.append(final_path)
+
+            return
+        
+        self.tokens[include_idx:path_idx+1] = []
+        self.current = include_idx
+
     def scan_token(self):
         token, token_idx = self.advance()
 
@@ -62,8 +103,10 @@ class PreParser:
             if token.text == "macro": self.parse_macro()
             if token.text in self.macros: self.replace_with_macro()
 
-    def pre_parse(self) -> list[Token]:
+            if token.text == "include": self.parse_include()
+
+    def pre_parse(self) -> tuple[list[Token], dict[str, dict]]:
         while not self.is_at_end():
             self.scan_token()
         
-        return self.tokens
+        return (self.tokens, self.macros)
