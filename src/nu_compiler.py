@@ -86,6 +86,17 @@ class Compiler:
                 self.writeln("Value index = stack_pop(&stack);", 2)
                 self.writeln("stack_roll(&stack, (size_t)AS_INT(index));", 2)
 
+            case OpType.IF:
+                self.writeln("Value condition = stack_pop(&stack);", 2)
+                self.writeln("if (!AS_BOOL(condition))", 2)
+                self.writeln(f"    goto addr_{op.operand};", 2)
+
+            case OpType.ELSE:
+                self.writeln(f"goto addr_{op.operand};", 2)
+
+            case OpType.ENDIF:
+                pass
+
             case OpType.CMACRO:
                 self.writeln(f"{op.token.text}", 2)
 

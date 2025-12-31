@@ -6,6 +6,7 @@ from nu_utils import write_file, cmd_call
 from nu_lexer import Lexer
 from nu_preparser import PreParser
 from nu_parser import Parser
+from nu_linker import Linker
 from nu_compiler import Compiler
 
 def usage():
@@ -56,6 +57,10 @@ def main():
 
             parser = Parser(tokens)
             ops = parser.parse()
+            if len(ops) <= 0: return
+
+            linker = Linker(ops)
+            ops = linker.link()
             if len(ops) <= 0: return
 
             if command == "parse":
