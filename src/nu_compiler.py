@@ -75,6 +75,10 @@ class Compiler:
             case OpType.PRINT:
                 self.writeln("value_print(stack_pop(&stack));", 2)
 
+            case OpType.PICK:
+                self.writeln("Value index = stack_pop(&stack);", 2)
+                self.writeln("stack_pick(&stack, (size_t)AS_INT(index));", 2)
+
             case OpType.CMACRO:
                 self.writeln(f"{op.token.text}", 2)
 

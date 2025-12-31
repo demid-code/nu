@@ -22,6 +22,7 @@ class OpType(IntEnum):
 
     # Built-in
     PRINT = auto()
+    PICK = auto()
 
     # Specific
     CMACRO = auto()
@@ -41,6 +42,7 @@ WORD_TO_OP = {
 
     # Built-in
     "print": OpType.PRINT,
+    "pick":  OpType.PICK,
 }
 
 @dataclass

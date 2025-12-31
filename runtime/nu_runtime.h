@@ -63,7 +63,8 @@ typedef struct {
     size_t capacity;
 } ValueStack;
 
-void  stack_init(ValueStack* s);
-void  stack_free(ValueStack* s);
-void  stack_push(ValueStack* s, Value val);
-Value stack_pop(ValueStack* s);
+void  stack_init(ValueStack *s);
+void  stack_free(ValueStack *s);
+void  stack_push(ValueStack *s, Value val);
+Value stack_pop(ValueStack *s);
+void  stack_pick(ValueStack *s, size_t index);

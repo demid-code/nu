@@ -107,21 +107,21 @@ Value value_to_bool(Value val) {
 
 // STACK
 
-void stack_init(ValueStack* s) {
+void stack_init(ValueStack *s) {
     s->size = 0;
     s->capacity = 8;
     s->data = (Value*)malloc(s->capacity * sizeof(Value));
     if (!s->data) ERROR("Failed to allocate memory in stack_init");
 }
 
-void stack_free(ValueStack* s) {
+void stack_free(ValueStack *s) {
     free(s->data);
     s->data = NULL;
     s->size = 0;
     s->capacity = 0;
 }
 
-void stack_push(ValueStack* s, Value val) {
+void stack_push(ValueStack *s, Value val) {
     if (s->size >= s->capacity) {
         s->capacity *= 2;
         s->data = (Value*)realloc(s->data, s->capacity * sizeof(Value));
@@ -131,8 +131,15 @@ void stack_push(ValueStack* s, Value val) {
     s->data[s->size++] = val;
 }
 
-Value stack_pop(ValueStack* s) {
+Value stack_pop(ValueStack *s) {
     if (s->size <= 0) ERROR("Stack underflow");
 
     return s->data[--s->size];
+}
+
+// check for index
+void stack_pick(ValueStack *s, size_t index) {
+    if (index < 0 || index >= s->size) ERROR("Invalid index in stack_pick");
+
+    stack_push(s, s->data[s->size - index - 1]);
 }
