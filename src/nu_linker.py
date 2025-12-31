@@ -37,6 +37,12 @@ class Linker:
             op = self.ops[op_idx]
 
             match op.type:
+                case OpType.IF:
+                    report_error("`if` was never closed with `endif`")
+
+                case OpType.ELSE:
+                    report_error("`else` was never closed with `endif`")
+
                 case _:
                     assert False, f"Unsupported OpType.{op.type.name} in Linker.solve_stack()"
 
@@ -73,5 +79,7 @@ class Linker:
     def link(self) -> list[Op]:
         while not self.is_at_end():
             self.scan_op()
+
+        self.solve_stack()
         
         return self.ops
