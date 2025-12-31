@@ -78,6 +78,47 @@ Value value_div(Value a, Value b) {
     }
 }
 
+Value value_equal(Value a, Value b) {
+    if (a.type != b.type) return VAL_BOOL(false);
+
+    switch (a.type) {
+    case TYPE_INT:   return VAL_BOOL(AS_INT(a) == AS_INT(b));
+    case TYPE_FLOAT: return VAL_BOOL(AS_FLOAT(a) == AS_FLOAT(b));
+    case TYPE_BOOL:  return VAL_BOOL(AS_BOOL(a) == AS_BOOL(b));
+    case TYPE_PTR:   return VAL_BOOL(AS_PTR(a) == AS_PTR(b));
+    }
+}
+
+Value value_greater(Value a, Value b) {
+    if (a.type == b.type) {
+        switch (a.type) {
+        case TYPE_INT:   return VAL_BOOL(AS_INT(a) > AS_INT(b));
+        case TYPE_FLOAT: return VAL_BOOL(AS_FLOAT(a) > AS_FLOAT(b));
+        case TYPE_BOOL:  ERROR("Can't compare if boolean is greater");
+        case TYPE_PTR:   ERROR("Can't compare if pointer is greater");
+        }
+    } else {
+        if (IS_INT(a) && IS_FLOAT(b))      return VAL_BOOL((double)AS_INT(a) > AS_FLOAT(b));
+        else if (IS_FLOAT(a) && IS_INT(b)) return VAL_BOOL(AS_FLOAT(a) > (double)AS_INT(b));
+        ERROR("Invalid types in value_greater");
+    }
+}
+
+Value value_less(Value a, Value b) {
+    if (a.type == b.type) {
+        switch (a.type) {
+        case TYPE_INT:   return VAL_BOOL(AS_INT(a) < AS_INT(b));
+        case TYPE_FLOAT: return VAL_BOOL(AS_FLOAT(a) < AS_FLOAT(b));
+        case TYPE_BOOL:  ERROR("Can't compare if boolean is less");
+        case TYPE_PTR:   ERROR("Can't compare if pointer is less");
+        }
+    } else {
+        if (IS_INT(a) && IS_FLOAT(b))      return VAL_BOOL((double)AS_INT(a) < AS_FLOAT(b));
+        else if (IS_FLOAT(a) && IS_INT(b)) return VAL_BOOL(AS_FLOAT(a) < (double)AS_INT(b));
+        ERROR("Invalid types in value_less");
+    }
+}
+
 Value value_to_int(Value val) {
     switch (val.type) {
     case TYPE_INT:   return val;
