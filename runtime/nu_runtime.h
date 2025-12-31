@@ -68,3 +68,4 @@ void  stack_free(ValueStack *s);
 void  stack_push(ValueStack *s, Value val);
 Value stack_pop(ValueStack *s);
 void  stack_pick(ValueStack *s, size_t index);
+void  stack_roll(ValueStack *s, size_t index);

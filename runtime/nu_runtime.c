@@ -143,3 +143,15 @@ void stack_pick(ValueStack *s, size_t index) {
 
     stack_push(s, s->data[s->size - index - 1]);
 }
+
+void stack_roll(ValueStack *s, size_t index) {
+    if (index < 0 || index >= s->size) ERROR("Invalid index in stack_roll");
+
+    Value value = s->data[s->size - index - 1];
+
+    for (size_t i = s->size - index - 1; i < s->size - 1; i++) {
+        s->data[i] = s->data[i+1];
+    }
+
+    s->data[s->size - 1] = value;
+}

@@ -82,6 +82,10 @@ class Compiler:
                 self.writeln("Value index = stack_pop(&stack);", 2)
                 self.writeln("stack_pick(&stack, (size_t)AS_INT(index));", 2)
 
+            case OpType.ROLL:
+                self.writeln("Value index = stack_pop(&stack);", 2)
+                self.writeln("stack_roll(&stack, (size_t)AS_INT(index));", 2)
+
             case OpType.CMACRO:
                 self.writeln(f"{op.token.text}", 2)
 

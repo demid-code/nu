@@ -24,6 +24,7 @@ class OpType(IntEnum):
     PRINT = auto()
     DROP = auto()
     PICK = auto()
+    ROLL = auto()
 
     # Specific
     CMACRO = auto()
@@ -45,6 +46,7 @@ WORD_TO_OP = {
     "print": OpType.PRINT,
     "drop":  OpType.DROP,
     "pick":  OpType.PICK,
+    "roll":  OpType.ROLL,
 }
 
 @dataclass

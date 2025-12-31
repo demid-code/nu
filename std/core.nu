@@ -3,3 +3,5 @@ macro false 0 $bool endmacro
 
 macro dup  0 pick endmacro
 macro over 1 pick endmacro
+macro swap 1 roll endmacro
+macro rot  2 roll endmacro
