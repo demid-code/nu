@@ -9,5 +9,5 @@ Clone repo and run example
 ```bash
 git clone https://github.com/demid-code/nu.git
 cd nu
-python3 src/nu.py com examples/arithmetic.nu -r
+python3 src/nu.py com examples/hello.nu -r
 ```

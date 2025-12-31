@@ -42,7 +42,7 @@ def main():
             filename = str(filepath.name).split(".")[0]
             
             lexer = Lexer(filepath)
-            tokens = lexer.lex()
+            tokens, cmacros = lexer.lex()
             if len(tokens) <= 0: return
 
             if command == "lex":
@@ -50,7 +50,7 @@ def main():
                     print(token)
                 return
             
-            pre_parser = PreParser(tokens, [nu_path, filepath.parent], [filepath])
+            pre_parser = PreParser(tokens, cmacros, [nu_path, filepath.parent], [filepath])
             tokens, _ = pre_parser.pre_parse()
             if len(tokens) <= 0: return
 

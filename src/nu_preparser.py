@@ -5,13 +5,15 @@ from nu_tokens import TokenType, Token
 from nu_lexer import Lexer
 
 class PreParser:
-    def __init__(self, tokens: list[Token], include_paths: list[Path] = [], included_paths: list[Path] = []):
+    def __init__(self, tokens: list[Token], cmacros: dict[str, str], include_paths: list[Path] = [], included_paths: list[Path] = []):
         self.tokens = tokens
         self.current = 0
+
 
         self.include_paths = include_paths
         self.included_paths = included_paths
 
+        self.cmacros = cmacros
         self.macros = {}
 
     def is_at_end(self) -> bool:
@@ -82,8 +84,8 @@ class PreParser:
             if final_path in self.included_paths:
                 continue
             
-            included_tokens = Lexer(final_path).lex()
-            included_tokens, macros = PreParser(included_tokens, self.include_paths + [final_path.parent], self.included_paths + [final_path]).pre_parse()
+            included_tokens, _ = Lexer(final_path, self.cmacros).lex()
+            included_tokens, macros = PreParser(included_tokens, self.cmacros, self.include_paths + [final_path.parent], self.included_paths + [final_path]).pre_parse()
 
             self.macros.update(macros)
             self.tokens[include_idx:path_idx+1] = included_tokens
@@ -96,6 +98,11 @@ class PreParser:
         self.tokens[include_idx:path_idx+1] = []
         self.current = include_idx
 
+    def replace_with_cmacro(self):
+        token, token_idx = self.peek(-1)
+
+        self.tokens[token_idx] = Token(TokenType.CMACRO, self.cmacros[token.text], token.loc)
+
     def scan_token(self):
         token, token_idx = self.advance()
 
@@ -104,6 +111,8 @@ class PreParser:
             if token.text in self.macros: self.replace_with_macro()
 
             if token.text == "include": self.parse_include()
+            
+            if token.text in self.cmacros: self.replace_with_cmacro()
 
     def pre_parse(self) -> tuple[list[Token], dict[str, dict]]:
         while not self.is_at_end():

@@ -5,7 +5,7 @@ from nu_utils import read_file
 from nu_tokens import TokenType, Token
 
 class Lexer:
-    def __init__(self, filepath: Path):
+    def __init__(self, filepath: Path, cmacros: dict[str, str] = {}):
         if not filepath.exists():
             report_error(f"`{filepath}` does not exist")
 
@@ -16,7 +16,7 @@ class Lexer:
         self.source = read_file(filepath)
 
         self.tokens = []
-        self.cmacros = {}
+        self.cmacros = cmacros
 
         self.start = 0
         self.current = 0
@@ -166,9 +166,9 @@ class Lexer:
             case _ if char.isdigit(): self.make_number()
             case _: self.make_word()
 
-    def lex(self) -> list[Token]:
+    def lex(self) -> tuple[list[Token], dict[str, str]]:
         while not self.is_at_end():
             self.update_pos()
             self.make_token()
 
-        return self.tokens
+        return (self.tokens, self.cmacros)
