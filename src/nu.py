@@ -20,6 +20,7 @@ def usage():
     print()
     print("Flags:")
     print("    -r    Runs program after successfull compilation")
+    print("    -s    Silent Mode")
     print()
 
 def main():
