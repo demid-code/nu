@@ -136,6 +136,12 @@ class Compiler:
             case OpType.ENDWHILE:
                 self.writeln(f"goto addr_{op.operand};", 2)
 
+            case OpType.BREAK:
+                self.writeln(f"goto addr_{op.operand};", 2)
+
+            case OpType.CONTINUE:
+                self.writeln(f"goto addr_{op.operand};", 2)
+
             case OpType.CMACRO:
                 self.writeln(f"{op.token.text}", 2)
 

@@ -42,9 +42,11 @@ class OpType(IntEnum):
     ENDIF = auto()
 
     # While loop
-    WHILE = auto(),
-    DO = auto(),
-    ENDWHILE = auto(),
+    WHILE = auto()
+    DO = auto()
+    ENDWHILE = auto()
+    BREAK = auto()
+    CONTINUE = auto()
 
     # Specific
     CMACRO = auto()
@@ -84,9 +86,11 @@ WORD_TO_OP = {
     "endif": OpType.ENDIF,
 
     # While loop
-    "while":   OpType.WHILE,
-    "do":      OpType.DO,
+    "while":    OpType.WHILE,
+    "do":       OpType.DO,
     "endwhile": OpType.ENDWHILE,
+    "break":    OpType.BREAK,
+    "continue": OpType.CONTINUE,
 }
 
 @dataclass

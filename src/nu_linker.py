@@ -8,6 +8,8 @@ OPS_TO_LINK = [
     OpType.WHILE,
     OpType.DO,
     OpType.ENDWHILE,
+    OpType.BREAK,
+    OpType.CONTINUE,
 ]
 
 class Linker:
@@ -104,6 +106,38 @@ class Linker:
 
                     self.ops[op_idx].operand = do_op.operand + 1
                     self.ops[do_idx].operand = op_idx + 1
+
+                case OpType.BREAK:
+                    self.empty_stack_error("break", op.token.loc)
+
+                    found = False
+                    for idx, opp in enumerate(self.ops[op_idx+1:]):
+                        opp_idx = idx + op_idx + 1
+                        
+                        if opp.type == OpType.ENDWHILE:
+                            self.ops[op_idx].operand = opp_idx + 1
+
+                            found = True
+                            break
+
+                    if not found:
+                        report_error("`break` can only be used inside while loop")
+
+                case OpType.CONTINUE:
+                    self.empty_stack_error("continue", op.token.loc)
+
+                    found = False
+                    for idx, opp in enumerate(self.ops[op_idx+1:]):
+                        opp_idx = idx + op_idx + 1
+                        
+                        if opp.type == OpType.ENDWHILE:
+                            self.ops[op_idx].operand = opp_idx
+
+                            found = True
+                            break
+
+                    if not found:
+                        report_error("`continue` can only be used inside while loop")
 
                 case _:
                     assert False, f"Unsupported OpType.{op.type.name} in Linker.scan_op()"
