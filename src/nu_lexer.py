@@ -107,10 +107,6 @@ class Lexer:
             self.update_pos()
 
             return
-        elif word in self.cmacros:
-            self.add_token(TokenType.CMACRO, self.cmacros[word])
-            
-            return
 
         self.add_token(TokenType.WORD)
 
