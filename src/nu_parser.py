@@ -48,6 +48,13 @@ class Parser:
                     if name.type != TokenType.WORD:
                         report_error("Expected procedure name to be a valid word", name.loc)
 
+                    if token_idx + 1 >= len(self.tokens):
+                        report_error("Expected `in` after procedure name", name.loc)
+
+                    in_token = self.tokens[token_idx + 2]
+                    if not (in_token.type == TokenType.WORD and in_token.text == "in"):
+                        report_error("Expected `in` after procedure name", name.loc)
+
                     self.procs.append(name.text)
 
                 if token.text in WORD_TO_OP:

@@ -60,6 +60,9 @@ class OpType(IntEnum):
     CALL = auto()
     RETURN = auto()
 
+    # Block forming
+    IN = auto()
+
     # Specific
     CMACRO = auto()
     EOF = auto()
@@ -114,6 +117,9 @@ WORD_TO_OP = {
     "proc":    OpType.PROC,
     "endproc": OpType.ENDPROC,
     "return":  OpType.RETURN,
+
+    # Block forming
+    "in": OpType.IN,
 }
 
 @dataclass

@@ -1,4 +1,4 @@
-proc cstrlen // ptr -> int
+proc cstrlen in // ptr -> int
     0 while true do
         over over sizeof(char) * + @char '\0' == if
             break
@@ -10,7 +10,7 @@ proc cstrlen // ptr -> int
     swap drop
 endproc
 
-proc cstreq // ptr ptr -> bool
+proc cstreq in // ptr ptr -> bool
     // if length of 2 ptr is different, return false
     over cstrlen over cstrlen != if
         drop drop

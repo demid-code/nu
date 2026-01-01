@@ -165,7 +165,7 @@ class Linker:
 
                 case OpType.CALL:
                     if op.token.text in self.procs:
-                        self.ops[op_idx].operand = self.procs[op.token.text]["start"] + 2
+                        self.ops[op_idx].operand = self.procs[op.token.text]["start"] + 3
 
                 case OpType.RETURN:
                     self.empty_stack_error("return", op.token.loc)
