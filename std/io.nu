@@ -23,16 +23,20 @@ macro eputs // ptr -> ...
     sizeof(char) over cstrlen stderr fwrite
 endmacro
 
-proc putc in // int -> ...
+proc putc in // int -> ../
     sizeof(char) malloc
-    swap over !8
-    dup sizeof(char) 1 stdout fwrite drop
-    free
+
+    let char ptr in
+        char ptr !8
+        ptr sizeof(char) 1 stdout fwrite
+    endlet
 endproc
 
-proc eputc in // int -> ...
+proc eputc in // int -> ../
     sizeof(char) malloc
-    swap over !8
-    dup sizeof(char) 1 stderr fwrite drop
-    free
+
+    let char ptr in
+        char ptr !8
+        ptr sizeof(char) 1 stderr fwrite
+    endlet
 endproc

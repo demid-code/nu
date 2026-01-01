@@ -59,7 +59,6 @@ class OpType(IntEnum):
     PROC = auto()
     ENDPROC = auto()
     CALL = auto()
-    RETURN = auto()
 
     # Let binding
     LET = auto()
@@ -121,7 +120,6 @@ WORD_TO_OP = {
     # Procedure
     "proc":    OpType.PROC,
     "endproc": OpType.ENDPROC,
-    "return":  OpType.RETURN,
 
     # Let binding
     "let":    OpType.LET,
