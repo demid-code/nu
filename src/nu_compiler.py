@@ -158,6 +158,9 @@ class Compiler:
                     self.writeln(f"stack_push(&addr_stack, VAL_INT({op_idx + 1}));", 2)
                     self.writeln(f"goto addr_{op.operand};", 2)
 
+            case OpType.RETURN:
+                self.writeln(f"goto addr_{op.operand};", 2)
+
             case OpType.CMACRO:
                 self.writeln(f"{op.token.text}", 2)
 

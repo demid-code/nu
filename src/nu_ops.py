@@ -55,6 +55,7 @@ class OpType(IntEnum):
     PROC = auto()
     ENDPROC = auto()
     CALL = auto()
+    RETURN = auto()
 
     # Specific
     CMACRO = auto()
@@ -106,6 +107,7 @@ WORD_TO_OP = {
     # Procedure
     "proc":    OpType.PROC,
     "endproc": OpType.ENDPROC,
+    "return":  OpType.RETURN,
 }
 
 @dataclass
