@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <inttypes.h>
 
 #define ERROR(msg) \
     do { \

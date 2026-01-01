@@ -36,6 +36,9 @@ class OpType(IntEnum):
     PICK = auto()
     ROLL = auto()
 
+    # Read
+    READ_8 = auto()
+
     # If/Else
     IF = auto()
     ELSE = auto()
@@ -79,6 +82,9 @@ WORD_TO_OP = {
     "drop":  OpType.DROP,
     "pick":  OpType.PICK,
     "roll":  OpType.ROLL,
+
+    # Read
+    "@8": OpType.READ_8,
 
     # If/Else
     "if":    OpType.IF,

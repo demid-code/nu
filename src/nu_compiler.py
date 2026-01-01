@@ -114,6 +114,10 @@ class Compiler:
                 self.writeln("Value index = stack_pop(&stack);", 2)
                 self.writeln("stack_roll(&stack, (size_t)AS_INT(index));", 2)
 
+            case OpType.READ_8:
+                self.writeln("Value ptr = stack_pop(&stack);", 2)
+                self.writeln("stack_push(&stack, VAL_INT(*(uint8_t*)AS_PTR(ptr)));", 2)
+
             case OpType.IF:
                 self.writeln("Value condition = stack_pop(&stack);", 2)
                 self.writeln("if (!AS_BOOL(condition))", 2)
