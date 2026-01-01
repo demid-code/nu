@@ -120,7 +120,7 @@ class Compiler:
 
             case OpType.IF:
                 self.writeln("Value condition = stack_pop(&stack);", 2)
-                self.writeln("if (!AS_BOOL(condition))", 2)
+                self.writeln("if (!AS_BOOL(value_to_bool(condition)))", 2)
                 self.writeln(f"    goto addr_{op.operand};", 2)
 
             case OpType.ELSE:
@@ -134,7 +134,7 @@ class Compiler:
 
             case OpType.DO:
                 self.writeln("Value condition = stack_pop(&stack);", 2)
-                self.writeln("if (!AS_BOOL(condition))", 2)
+                self.writeln("if (!AS_BOOL(value_to_bool(condition)))", 2)
                 self.writeln(f"    goto addr_{op.operand};", 2)
 
             case OpType.ENDWHILE:
