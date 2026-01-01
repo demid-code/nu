@@ -43,6 +43,10 @@ class Compiler:
 
                 self.writeln(f"stack_push(&stack, VAL_PTR(strs[{self.strs.index(op.operand)}]));", 2)
 
+            case OpType.PUSH_BINDED:
+                self.writeln(f"Value val = addr_stack.data[addr_stack.size - {op.operand} - 1];", 2)
+                self.writeln(f"stack_push(&stack, val);", 2)
+
             case OpType.PLUS:
                 self.writeln("Value b = stack_pop(&stack);", 2)
                 self.writeln("Value a = stack_pop(&stack);", 2)
@@ -166,6 +170,17 @@ class Compiler:
 
             case OpType.RETURN:
                 self.writeln(f"goto addr_{op.operand};", 2)
+
+            case OpType.IN:
+                pass
+
+            case OpType.LET:
+                self.writeln(f"for (int i = 0; i < {op.operand}; i++)", 2)
+                self.writeln("    stack_push(&addr_stack, stack_pop(&stack));", 2)
+
+            case OpType.ENDLET:
+                self.writeln(f"for (int i = 0; i < {op.operand}; i++)", 2)
+                self.writeln("    stack_pop(&addr_stack);", 2)
 
             case OpType.CMACRO:
                 self.writeln(f"{op.token.text}", 2)

@@ -8,6 +8,7 @@ class OpType(IntEnum):
     PUSH_INT = auto()
     PUSH_FLOAT = auto()
     PUSH_CSTRING = auto()
+    PUSH_BINDED = auto()
 
     # +, -, *, /
     PLUS = auto()
@@ -59,6 +60,10 @@ class OpType(IntEnum):
     ENDPROC = auto()
     CALL = auto()
     RETURN = auto()
+
+    # Let binding
+    LET = auto()
+    ENDLET = auto()
 
     # Block forming
     IN = auto()
@@ -117,6 +122,10 @@ WORD_TO_OP = {
     "proc":    OpType.PROC,
     "endproc": OpType.ENDPROC,
     "return":  OpType.RETURN,
+
+    # Let binding
+    "let":    OpType.LET,
+    "endlet": OpType.ENDLET,
 
     # Block forming
     "in": OpType.IN,

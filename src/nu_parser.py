@@ -9,10 +9,14 @@ class Parser:
 
         self.procs = []
 
+        self.bind_name_stack = []
+
         self.ops = []
 
-    def is_at_end(self) -> bool:
-        return self.current >= len(self.tokens)
+    def is_at_end(self, index: int = None) -> bool:
+        i = index
+        if i == None: i = self.current
+        return i >= len(self.tokens)
     
     def advance(self) -> tuple[Token, int]:
         idx = self.current
@@ -48,7 +52,7 @@ class Parser:
                     if name.type != TokenType.WORD:
                         report_error("Expected procedure name to be a valid word", name.loc)
 
-                    if token_idx + 1 >= len(self.tokens):
+                    if self.is_at_end(token_idx + 1):
                         report_error("Expected `in` after procedure name", name.loc)
 
                     in_token = self.tokens[token_idx + 2]
@@ -57,12 +61,50 @@ class Parser:
 
                     self.procs.append(name.text)
 
+                if token.text == "let":
+                    names = []
+    
+                    found_in = False
+                    while not self.is_at_end():
+                        tok, tok_idx = self.advance()
+
+                        if tok.type == TokenType.WORD:
+                            if tok.text == "in":
+                                found_in = True
+                                break
+                            else: names.append(tok.text)
+
+                    if len(names) <= 0: report_error("Expected bind names after `let`", token.loc)
+                    self.bind_name_stack.append(names)
+
+                    if not found_in:
+                        report_error("Expected `in` after bind names", self.tokens[idx-1].loc)
+
+                    self.add_op(OpType.LET, token, len(names))
+                    self.add_op(OpType.IN, self.tokens[self.current-1])
+
+                    return
+
+                if token.text == "endlet":
+                    names = self.bind_name_stack.pop()
+                    self.add_op(OpType.ENDLET, token, len(names))
+                    return
+
                 if token.text in WORD_TO_OP:
                     self.add_op(WORD_TO_OP.get(token.text), token)
                 elif token.text in self.procs:
                     self.add_op(OpType.CALL, token)
                 else:
-                    report_error(f"`{token.text}` is not built-in", token.loc)
+                    found = False
+                    for name_list in self.bind_name_stack:
+                        if token.text in name_list:
+                            found = True
+
+                            idx = name_list.index(token.text)
+                            self.add_op(OpType.PUSH_BINDED, token, idx)
+
+                    if not found:
+                        report_error(f"`{token.text}` is not built-in", token.loc)
 
             case TokenType.CMACRO:
                 self.add_op(OpType.CMACRO, token, None)
