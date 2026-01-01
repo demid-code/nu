@@ -118,6 +118,12 @@ class Compiler:
                 self.writeln("Value ptr = stack_pop(&stack);", 2)
                 self.writeln("stack_push(&stack, VAL_INT(*(uint8_t*)AS_PTR(ptr)));", 2)
 
+            case OpType.WRITE_8:
+                self.writeln("Value buf = stack_pop(&stack);", 2)
+                self.writeln("Value val = stack_pop(&stack);", 2)
+                self.writeln("uint8_t value = AS_INT(value_to_int(val));", 2)
+                self.writeln("*(uint8_t*)AS_PTR(buf) = value;", 2)
+
             case OpType.IF:
                 self.writeln("Value condition = stack_pop(&stack);", 2)
                 self.writeln("if (!AS_BOOL(value_to_bool(condition)))", 2)

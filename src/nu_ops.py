@@ -39,6 +39,9 @@ class OpType(IntEnum):
     # Read
     READ_8 = auto()
 
+    # Write
+    WRITE_8 = auto()
+
     # If/Else
     IF = auto()
     ELSE = auto()
@@ -91,6 +94,9 @@ WORD_TO_OP = {
 
     # Read
     "@8": OpType.READ_8,
+
+    # Write
+    "!8": OpType.WRITE_8,
 
     # If/Else
     "if":    OpType.IF,

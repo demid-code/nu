@@ -1,5 +1,6 @@
 include "std/core.nu"
 include "std/string.nu"
+include "std/std.nu"
 
 cmacro stdin  stack_push(&stack, VAL_PTR(stdin));  endcmacro
 cmacro stdout stack_push(&stack, VAL_PTR(stdout)); endcmacro
@@ -21,3 +22,17 @@ endmacro
 macro eputs // ptr -> ...
     sizeof(char) over cstrlen stderr fwrite
 endmacro
+
+proc putc // int -> ...
+    sizeof(char) malloc
+    swap over !8
+    dup sizeof(char) 1 stdout fwrite drop
+    free
+endproc
+
+proc eputc // int -> ...
+    sizeof(char) malloc
+    swap over !8
+    dup sizeof(char) 1 stderr fwrite drop
+    free
+endproc
