@@ -2,6 +2,7 @@ from pathlib import Path
 
 from nu_error import report_error
 from nu_tokens import TokenType, Token
+from nu_ops import WORD_TO_OP
 from nu_lexer import Lexer
 
 class PreParser:
@@ -39,6 +40,15 @@ class PreParser:
         if name.type != TokenType.WORD:
             report_error("Expected name of macro to be a valid word", name.loc)
 
+        if name.text in WORD_TO_OP:
+            report_error("Can't define macro with built-in name", macro.loc)
+
+        if name.text in self.macros:
+            report_error("Can't redefine already existing macro", self.macros[name.text]["start"])
+
+        if name.text in self.cmacros:
+            report_error("Can't define macro with existing cmacro name", self.cmacros[name.text]["start"])
+
         found_end = False
         while not self.is_at_end():
             tok, tok_idx = self.advance()
@@ -53,7 +63,7 @@ class PreParser:
         if not found_end:
             report_error("Expected `endmacro` to close macro", macro.loc)
 
-        self.macros[name.text] = {"body": self.tokens[name_idx+1:self.current-1]}
+        self.macros[name.text] = {"start": macro.loc.copy(), "body": self.tokens[name_idx+1:self.current-1]}
         self.tokens[macro_idx:self.current] = []
         self.current -= self.current - macro_idx
 
@@ -101,7 +111,7 @@ class PreParser:
     def replace_with_cmacro(self):
         token, token_idx = self.peek(-1)
 
-        self.tokens[token_idx] = Token(TokenType.CMACRO, self.cmacros[token.text], token.loc)
+        self.tokens[token_idx] = Token(TokenType.CMACRO, self.cmacros[token.text]["body"], token.loc)
 
     def scan_token(self):
         token, token_idx = self.advance()

@@ -3,6 +3,7 @@ from pathlib import Path
 from nu_error import Loc, report_error
 from nu_utils import read_file
 from nu_tokens import TokenType, Token
+from nu_ops import WORD_TO_OP
 
 class Lexer:
     def __init__(self, filepath: Path, cmacros: dict[str, str] = {}):
@@ -76,6 +77,8 @@ class Lexer:
         word = self.lex_word()
 
         if word == "cmacro":
+            start_loc = self.loc.copy()
+            
             self.skip_whitespace()
             self.update_pos()
 
@@ -83,6 +86,9 @@ class Lexer:
             
             if name.strip() == "":
                 report_error("Expected cmacro name", self.loc)
+
+            if name in WORD_TO_OP:
+                report_error("Can't define cmacro with built-in name", start_loc)
 
             self.skip_whitespace()
             self.update_pos()
@@ -101,7 +107,7 @@ class Lexer:
                 report_error("Expected `endcmacro` to close cmacro", self.loc)
 
             body = self.source[self.start:self.current]
-            self.cmacros[name] = body
+            self.cmacros[name] = {"start": start_loc, "body": body}
 
             self.current += 9
             self.update_pos()
