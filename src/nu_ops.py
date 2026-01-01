@@ -51,6 +51,11 @@ class OpType(IntEnum):
     BREAK = auto()
     CONTINUE = auto()
 
+    # Procedure
+    PROC = auto()
+    ENDPROC = auto()
+    CALL = auto()
+
     # Specific
     CMACRO = auto()
     EOF = auto()
@@ -97,6 +102,10 @@ WORD_TO_OP = {
     "endwhile": OpType.ENDWHILE,
     "break":    OpType.BREAK,
     "continue": OpType.CONTINUE,
+
+    # Procedure
+    "proc":    OpType.PROC,
+    "endproc": OpType.ENDPROC,
 }
 
 @dataclass

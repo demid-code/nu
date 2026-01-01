@@ -146,12 +146,25 @@ class Compiler:
             case OpType.CONTINUE:
                 self.writeln(f"goto addr_{op.operand};", 2)
 
+            case OpType.PROC:
+                self.writeln(f"goto addr_{op.operand};", 2)
+
+            case OpType.ENDPROC:
+                self.writeln("Value ret_addr = stack_pop(&addr_stack);", 2)
+                self.writeln("goto *addrs[AS_INT(ret_addr)];", 2)
+
+            case OpType.CALL:
+                if op.operand != None:
+                    self.writeln(f"stack_push(&addr_stack, VAL_INT({op_idx + 1}));", 2)
+                    self.writeln(f"goto addr_{op.operand};", 2)
+
             case OpType.CMACRO:
                 self.writeln(f"{op.token.text}", 2)
 
             case OpType.EOF:
                 write_jump = False
                 self.writeln("stack_free(&stack);", 2)
+                self.writeln("stack_free(&addr_stack);", 2)
                 self.writeln("return 0;", 2)
 
             case _:
@@ -171,9 +184,14 @@ class Compiler:
         self.writeln("ValueStack stack;", 1)
         self.writeln("stack_init(&stack);\n", 1)
 
+        self.writeln("ValueStack addr_stack;", 1)
+        self.writeln("stack_init(&addr_stack);\n", 1)
+
         if len(self.strs) > 0:
             self.writeln("char* strs[] = {%s};" % ", ".join([f"\"{s.encode("unicode_escape").decode()}\"" for s in self.strs]), 1)
         
+        self.writeln("void *addrs[] = {%s};" % ", ".join([f"&&addr_{x}" for x in range(len(self.ops))]), 1)
+
         self.writeln("goto addr_0;\n", 1)
 
         output = "#include \"nu_runtime.h\"\n\n"

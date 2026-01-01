@@ -10,12 +10,17 @@ OPS_TO_LINK = [
     OpType.ENDWHILE,
     OpType.BREAK,
     OpType.CONTINUE,
+    OpType.PROC,
+    OpType.ENDPROC,
+    OpType.CALL,
 ]
 
 class Linker:
     def __init__(self, ops: list[Op]):
         self.ops = ops
         self.current = 0
+
+        self.procs = {}
 
         self.stack = []
 
@@ -53,6 +58,9 @@ class Linker:
 
                 case OpType.DO:
                     report_error("`do` was never closed with `endwhile`", op.token.loc)
+
+                case OpType.PROC:
+                    report_error("`proc` was never closed with `endproc`", op.token.loc)
 
                 case _:
                     assert False, f"Unsupported OpType.{op.type.name} in Linker.solve_stack()"
@@ -138,6 +146,25 @@ class Linker:
 
                     if not found:
                         report_error("`continue` can only be used inside while loop")
+
+                case OpType.PROC:
+                    self.push(op_idx)
+
+                case OpType.ENDPROC:
+                    self.empty_stack_error("endproc", op.token.loc)
+
+                    proc, proc_idx = self.pop()
+                    if proc.type != OpType.PROC:
+                        report_error("`endproc` can only close `proc`", proc.token.loc)
+
+                    proc_name = self.ops[proc_idx + 1].token.text
+
+                    self.ops[proc_idx].operand = op_idx + 1
+                    self.procs[proc_name] = {"start": proc_idx}
+
+                case OpType.CALL:
+                    if op.token.text in self.procs:
+                        self.ops[op_idx].operand = self.procs[op.token.text]["start"] + 2
 
                 case _:
                     assert False, f"Unsupported OpType.{op.type.name} in Linker.scan_op()"

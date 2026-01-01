@@ -7,20 +7,23 @@ class Parser:
         self.tokens = tokens
         self.current = 0
 
+        self.procs = []
+
         self.ops = []
 
     def is_at_end(self) -> bool:
         return self.current >= len(self.tokens)
     
-    def advance(self) -> Token:
+    def advance(self) -> tuple[Token, int]:
+        idx = self.current
         self.current += 1
-        return self.tokens[self.current - 1]
+        return (self.tokens[idx], idx)
 
     def add_op(self, op_type: OpType, token: Token, operand: any = None):
         self.ops.append(Op(op_type, token, operand))
 
     def make_op(self):
-        token = self.advance()
+        token, token_idx = self.advance()
 
         match token.type:
             case TokenType.INT:
@@ -37,8 +40,20 @@ class Parser:
                 self.add_op(OpType.PUSH_CSTRING, token, token.text[1:-1].encode().decode("unicode_escape"))
 
             case TokenType.WORD:
+                if token.text == "proc":
+                    if self.is_at_end():
+                        report_error("Expected procedure name", token.loc)
+
+                    name = self.tokens[token_idx + 1]
+                    if name.type != TokenType.WORD:
+                        report_error("Expected procedure name to be a valid word", name.loc)
+
+                    self.procs.append(name.text)
+
                 if token.text in WORD_TO_OP:
                     self.add_op(WORD_TO_OP.get(token.text), token)
+                elif token.text in self.procs:
+                    self.add_op(OpType.CALL, token)
                 else:
                     report_error(f"`{token.text}` is not built-in", token.loc)
 

@@ -17,3 +17,7 @@ endcmacro
 macro puts // ptr -> ...
     sizeof(char) over cstrlen stdout fwrite
 endmacro
+
+macro eputs // ptr -> ...
+    sizeof(char) over cstrlen stderr fwrite
+endmacro
