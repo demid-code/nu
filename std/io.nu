@@ -1,3 +1,6 @@
+include "std/core.nu"
+include "std/string.nu"
+
 cmacro stdin  stack_push(&stack, VAL_PTR(stdin));  endcmacro
 cmacro stdout stack_push(&stack, VAL_PTR(stdout)); endcmacro
 cmacro stderr stack_push(&stack, VAL_PTR(stderr)); endcmacro
@@ -10,3 +13,7 @@ cmacro fwrite // buf elementSize bufSize fp -> bytesWritten
     size_t ret = fwrite(AS_PTR(buf), (size_t)AS_INT(elemSize), (size_t)AS_INT(bufSize), (FILE*)AS_PTR(fp));
     stack_push(&stack, VAL_INT(ret));
 endcmacro
+
+macro puts // ptr -> ...
+    sizeof(char) over cstrlen stdout fwrite
+endmacro
