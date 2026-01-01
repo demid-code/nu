@@ -41,6 +41,11 @@ class OpType(IntEnum):
     ELSE = auto()
     ENDIF = auto()
 
+    # While loop
+    WHILE = auto(),
+    DO = auto(),
+    ENDWHILE = auto(),
+
     # Specific
     CMACRO = auto()
     EOF = auto()
@@ -77,6 +82,11 @@ WORD_TO_OP = {
     "if":    OpType.IF,
     "else":  OpType.ELSE,
     "endif": OpType.ENDIF,
+
+    # While loop
+    "while":   OpType.WHILE,
+    "do":      OpType.DO,
+    "endwhile": OpType.ENDWHILE,
 }
 
 @dataclass

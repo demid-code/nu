@@ -125,6 +125,17 @@ class Compiler:
             case OpType.ENDIF:
                 pass
 
+            case OpType.WHILE:
+                pass
+
+            case OpType.DO:
+                self.writeln("Value condition = stack_pop(&stack);", 2)
+                self.writeln("if (!AS_BOOL(condition))", 2)
+                self.writeln(f"    goto addr_{op.operand};", 2)
+
+            case OpType.ENDWHILE:
+                self.writeln(f"goto addr_{op.operand};", 2)
+
             case OpType.CMACRO:
                 self.writeln(f"{op.token.text}", 2)
 
