@@ -10,11 +10,12 @@ class OpType(IntEnum):
     PUSH_CSTRING = auto()
     PUSH_BINDED = auto()
 
-    # +, -, *, /
+    # Arithmetic
     PLUS = auto()
     MINUS = auto()
     MULTIPLY = auto()
     DIVIDE = auto()
+    MOD = auto()
 
     # Comparison
     EQUAL = auto()
@@ -80,11 +81,12 @@ class OpType(IntEnum):
     EOF = auto()
 
 WORD_TO_OP = {
-    # +, -, *, /
+    # Arithmetic
     "+": OpType.PLUS,
     "-": OpType.MINUS,
     "*": OpType.MULTIPLY,
     "/": OpType.DIVIDE,
+    "%": OpType.MOD,
 
     # Comparison
     "==": OpType.EQUAL,

@@ -78,6 +78,14 @@ Value value_div(Value a, Value b) {
     }
 }
 
+Value value_mod(Value a, Value b) {
+    if (IS_INT(a) && IS_INT(b)) {
+        return VAL_INT(AS_INT(a) % AS_INT(b));
+    } else {
+        ERROR("You can only use modulo on integers");
+    }
+}
+
 Value value_equal(Value a, Value b) {
     if (a.type != b.type) return VAL_BOOL(false);
 
