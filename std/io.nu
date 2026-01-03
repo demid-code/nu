@@ -28,7 +28,7 @@ proc fputc in // int fp -> ...
     sizeof(char) malloc // buffer
 
     bind char fp ptr endbind
-        char ptr !8
+        char ptr !char
         ptr sizeof(char) 1 fp fwrite drop
     unbind*
 endproc
