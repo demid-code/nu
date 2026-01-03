@@ -6,7 +6,8 @@ cmacro stdin  stack_push(&stack, VAL_PTR(stdin));  endcmacro
 cmacro stdout stack_push(&stack, VAL_PTR(stdout)); endcmacro
 cmacro stderr stack_push(&stack, VAL_PTR(stderr)); endcmacro
 
-cmacro fwrite // buf elementSize bufSize fp -> bytesWritten
+// buf elementSize bufSize fp -> bytesWritten
+cmacro fwrite
     Value fp = stack_pop(&stack);
     Value bufSize = stack_pop(&stack);
     Value elemSize = stack_pop(&stack);
@@ -16,11 +17,11 @@ cmacro fwrite // buf elementSize bufSize fp -> bytesWritten
 endcmacro
 
 macro puts // ptr -> ...
-    sizeof(char) over cstrlen stdout fwrite
+    sizeof(char) over cstrlen stdout fwrite drop
 endmacro
 
 macro eputs // ptr -> ...
-    sizeof(char) over cstrlen stderr fwrite
+    sizeof(char) over cstrlen stderr fwrite drop
 endmacro
 
 proc putc in // int -> ../
@@ -28,7 +29,7 @@ proc putc in // int -> ../
 
     bind char ptr endbind
         char ptr !8
-        ptr sizeof(char) 1 stdout fwrite
+        ptr sizeof(char) 1 stdout fwrite drop
     unbind*
 endproc
 
@@ -37,6 +38,6 @@ proc eputc in // int -> ../
 
     bind char ptr endbind
         char ptr !8
-        ptr sizeof(char) 1 stderr fwrite
+        ptr sizeof(char) 1 stderr fwrite drop
     unbind*
 endproc
