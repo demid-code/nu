@@ -83,7 +83,7 @@ class PreParser:
         if path_token.type != TokenType.STRING:
             report_error("Expected path to be a string", path_token.loc)
 
-        path = Path(path_token.text[1:-1].encode().decode("unicode_escape")).resolve()
+        path = Path(path_token.text[1:-1].encode().decode("unicode_escape"))
         
         for include_path in self.include_paths:
             final_path = include_path.joinpath(path).resolve()
