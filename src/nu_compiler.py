@@ -140,6 +140,24 @@ class Compiler:
                 self.writeln("uint8_t value = AS_INT(value_to_int(val));", 2)
                 self.writeln("*(uint8_t*)AS_PTR(buf) = value;", 2)
 
+            case OpType.WRITE_16:
+                self.writeln("Value buf = stack_pop(&stack);", 2)
+                self.writeln("Value val = stack_pop(&stack);", 2)
+                self.writeln("uint16_t value = AS_INT(value_to_int(val));", 2)
+                self.writeln("*(uint16_t*)AS_PTR(buf) = value;", 2)
+
+            case OpType.WRITE_32:
+                self.writeln("Value buf = stack_pop(&stack);", 2)
+                self.writeln("Value val = stack_pop(&stack);", 2)
+                self.writeln("uint32_t value = AS_INT(value_to_int(val));", 2)
+                self.writeln("*(uint32_t*)AS_PTR(buf) = value;", 2)
+
+            case OpType.WRITE_64:
+                self.writeln("Value buf = stack_pop(&stack);", 2)
+                self.writeln("Value val = stack_pop(&stack);", 2)
+                self.writeln("uint64_t value = AS_INT(value_to_int(val));", 2)
+                self.writeln("*(uint64_t*)AS_PTR(buf) = value;", 2)
+
             case OpType.IF:
                 self.writeln("Value condition = stack_pop(&stack);", 2)
                 self.writeln("if (!AS_BOOL(value_to_bool(condition)))", 2)
