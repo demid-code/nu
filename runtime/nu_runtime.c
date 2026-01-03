@@ -66,7 +66,7 @@ Value value_mul(Value a, Value b) {
 Value value_div(Value a, Value b) {
     if (a.type == b.type) {
         switch (a.type) {
-        case TYPE_INT:   return VAL_FLOAT(AS_INT(a) / AS_INT(b));
+        case TYPE_INT:   return VAL_FLOAT((double)AS_INT(a) / (double)AS_INT(b));
         case TYPE_FLOAT: return VAL_FLOAT(AS_FLOAT(a) / AS_FLOAT(b));
         case TYPE_BOOL:  ERROR("Can't divide booleans");
         case TYPE_PTR:   ERROR("Can't divide pointers");

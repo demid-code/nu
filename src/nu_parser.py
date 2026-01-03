@@ -9,8 +9,8 @@ class Parser:
 
         self.procs = []
 
-        self.bind_name_stack = []
-        self.bind_names_all = []
+        self.bind_names = []
+        self.bind_stack = []
 
         self.ops = []
 
@@ -70,30 +70,35 @@ class Parser:
                         tok, tok_idx = self.advance()
 
                         if tok.type == TokenType.WORD:
+                            if tok.text == "bind":
+                                report_error("Can't nest bindings", tok.loc)
+
                             if tok.text == "endbind":
                                 found_end = True
                                 break
                             else: names.append(tok.text)
 
                     if len(names) <= 0: report_error("Expected bind names after `bind`", token.loc)
-                    self.bind_name_stack.append(names)
-                    self.bind_names_all.append(names)
+                    self.bind_names = names + self.bind_names
+                    self.bind_stack.append(len(names))
 
                     if not found_end:
-                        report_error("Expected `endbind` after bind names", self.tokens[idx-1].loc)
+                        report_error("Expected `endbind` after bind names", token.loc)
 
                     self.add_op(OpType.BIND, token, len(names))
 
                     return
 
                 if token.text == "unbind":
-                    names = self.bind_name_stack.pop()
-                    self.add_op(OpType.UNBIND, token, len(names))
+                    names_count = self.bind_stack.pop()
+                    for _ in range(names_count): self.bind_names.pop()
+                    self.add_op(OpType.UNBIND, token, names_count)
                     return
                 
                 if token.text == "unbind*":
-                    self.add_op(OpType.UNBIND_ALL, token, sum([len(x) for x in self.bind_name_stack]))
-                    self.bind_name_stack = []
+                    self.add_op(OpType.UNBIND_ALL, token, len(self.bind_names))
+                    self.bind_names = []
+                    self.bind_stack = []
                     return
 
                 if token.text in WORD_TO_OP:
@@ -101,15 +106,9 @@ class Parser:
                 elif token.text in self.procs:
                     self.add_op(OpType.CALL, token)
                 else:
-                    found = False
-                    for name_list in self.bind_name_stack:
-                        if token.text in name_list:
-                            found = True
-
-                            idx = name_list.index(token.text)
-                            self.add_op(OpType.PUSH_BINDED, token, idx)
-
-                    if not found:
+                    if token.text in self.bind_names:
+                        self.add_op(OpType.PUSH_BINDED, token, self.bind_names.index(token.text))
+                    else:
                         report_error(f"`{token.text}` is not built-in", token.loc)
 
             case TokenType.CMACRO:
