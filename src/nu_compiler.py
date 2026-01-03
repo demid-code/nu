@@ -122,6 +122,18 @@ class Compiler:
                 self.writeln("Value ptr = stack_pop(&stack);", 2)
                 self.writeln("stack_push(&stack, VAL_INT(*(uint8_t*)AS_PTR(ptr)));", 2)
 
+            case OpType.READ_16:
+                self.writeln("Value ptr = stack_pop(&stack);", 2)
+                self.writeln("stack_push(&stack, VAL_INT(*(uint16_t*)AS_PTR(ptr)));", 2)
+
+            case OpType.READ_32:
+                self.writeln("Value ptr = stack_pop(&stack);", 2)
+                self.writeln("stack_push(&stack, VAL_INT(*(uint32_t*)AS_PTR(ptr)));", 2)
+
+            case OpType.READ_64:
+                self.writeln("Value ptr = stack_pop(&stack);", 2)
+                self.writeln("stack_push(&stack, VAL_INT(*(uint64_t*)AS_PTR(ptr)));", 2)
+
             case OpType.WRITE_8:
                 self.writeln("Value buf = stack_pop(&stack);", 2)
                 self.writeln("Value val = stack_pop(&stack);", 2)

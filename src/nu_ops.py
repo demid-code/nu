@@ -39,6 +39,9 @@ class OpType(IntEnum):
 
     # Read
     READ_8 = auto()
+    READ_16 = auto()
+    READ_32 = auto()
+    READ_64 = auto()
 
     # Write
     WRITE_8 = auto()
@@ -102,7 +105,10 @@ WORD_TO_OP = {
     "roll":  OpType.ROLL,
 
     # Read
-    "@8": OpType.READ_8,
+    "@8":  OpType.READ_8,
+    "@16": OpType.READ_16,
+    "@32": OpType.READ_32,
+    "@64": OpType.READ_64,
 
     # Write
     "!8": OpType.WRITE_8,
