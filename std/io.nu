@@ -7,13 +7,38 @@ cmacro stdin  stack_push(&stack, VAL_PTR(stdin));  endcmacro
 cmacro stdout stack_push(&stack, VAL_PTR(stdout)); endcmacro
 cmacro stderr stack_push(&stack, VAL_PTR(stderr)); endcmacro
 
-// buf elementSize bufSize fp -> bytesWritten
+// buffer: ptr, size: int, count: int stream: ptr -> bytes: int
 cmacro fwrite
-    Value fp = stack_pop(&stack);
-    Value bufSize = stack_pop(&stack);
-    Value elemSize = stack_pop(&stack);
+    Value stream = stack_pop(&stack);
+    Value count = stack_pop(&stack);
+    Value size = stack_pop(&stack);
     Value buf = stack_pop(&stack);
-    size_t ret = fwrite(AS_PTR(buf), (size_t)AS_INT(elemSize), (size_t)AS_INT(bufSize), (FILE*)AS_PTR(fp));
+    size_t ret = fwrite(AS_PTR(buf), (size_t)AS_INT(size), (size_t)AS_INT(count), (FILE*)AS_PTR(stream));
+    stack_push(&stack, VAL_INT(ret));
+endcmacro
+
+// buffer: ptr, size: int, count: int stream: ptr -> bytes: int
+cmacro fread
+    Value stream = stack_pop(&stack);
+    Value count = stack_pop(&stack);
+    Value size = stack_pop(&stack);
+    Value buf = stack_pop(&stack);
+    int bytes = fread(AS_PTR(buf), (size_t)AS_INT(size), (size_t)AS_INT(count), (FILE*)AS_PTR(stream));
+    stack_push(&stack, VAL_INT(bytes));
+endcmacro
+
+// filename: ptr, mode: ptr -> fp: ptr
+cmacro fopen
+    Value mode = stack_pop(&stack);
+    Value filename = stack_pop(&stack);
+    FILE* fp = fopen((char*)AS_PTR(filename), (char*)AS_PTR(mode));
+    stack_push(&stack, VAL_PTR(fp));
+endcmacro
+
+// fp: ptr -> int
+cmacro fclose
+    Value fp = stack_pop(&stack);
+    int ret = fclose((FILE*)AS_PTR(fp));
     stack_push(&stack, VAL_INT(ret));
 endcmacro
 
