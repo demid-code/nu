@@ -253,7 +253,7 @@ class Compiler:
         self.writeln("goto addr_0;\n", 1)
 
         output = "#include \"nu_runtime.h\"\n\n"
-        output += "int main() {\n"
+        output += "int main(int argc, char* argv[]) {\n"
         output += self.writes["init"]
         output += self.writes["main"]
         output += "}\n"
