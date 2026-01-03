@@ -1,6 +1,7 @@
 include "std/core.nu"
 include "std/string.nu"
 include "std/std.nu"
+include "std/math.nu"
 
 cmacro stdin  stack_push(&stack, VAL_PTR(stdin));  endcmacro
 cmacro stdout stack_push(&stack, VAL_PTR(stdout)); endcmacro
@@ -16,38 +17,70 @@ cmacro fwrite
     stack_push(&stack, VAL_INT(ret));
 endcmacro
 
-macro puts // ptr -> ...
-    sizeof(char) over cstrlen stdout fwrite drop
+macro fputs // ptr fp -> ...
+    sizeof(char) swap 2 pick cstrlen swap fwrite drop
 endmacro
 
-macro eputs // ptr -> ...
-    sizeof(char) over cstrlen stderr fwrite drop
-endmacro
+macro puts  stdout fputs endmacro // ptr -> ...
+macro eputs stdout fputs endmacro // ptr -> ...
 
-proc putc in // int -> ../
-    sizeof(char) malloc
+proc fputc in // int fp -> ...
+    sizeof(char) malloc // buffer
 
-    bind char ptr endbind
+    bind char fp ptr endbind
         char ptr !8
-        ptr sizeof(char) 1 stdout fwrite drop
+        ptr sizeof(char) 1 fp fwrite drop
     unbind*
 endproc
 
-proc eputc in // int -> ../
-    sizeof(char) malloc
+macro putc  stdout fputc endmacro // int -> ...
+macro eputc stderr fputc endmacro // int -> ...
 
-    bind char ptr endbind
-        char ptr !8
-        ptr sizeof(char) 1 stderr fwrite drop
+proc fputb in // bool fp -> ...
+    swap if "true"  swap fputs
+    else    "false" swap fputs endif
+endproc
+
+macro putb  stdout fputb endmacro // bool -> ...
+macro eputb stderr fputb endmacro // bool -> ...
+
+proc fputi in // int fp -> ...
+    over 0 < rot abs
+    bind fp isNegative num endbind
+
+    // calculating buffer size
+    num 0 while true do
+        swap 10 / $int swap
+        over 0 == if
+            swap drop 1 + break
+        endif
+        
+        1 +
+    endwhile
+    isNegative if 1 + endif
+
+    dup sizeof(char) * malloc // allocating buffer
+    
+    bind len buf endbind
+        // writing to buffer
+        isNegative if '-' buf !char endif
+    
+        num 0 while dup len < do
+            dup len 1 - == isNegative and if
+                break
+            endif
+
+            swap dup 10 % '0' +                         // getting digit char
+            buf len 4 pick - 1 - sizeof(char) * + !char // writing char
+            10 / $int swap                              // dividing initial number
+            
+            1 +
+        endwhile
+
+        // outputing buffer
+        buf sizeof(char) len fp fwrite drop
     unbind*
 endproc
 
-proc putb in // bool -> ...
-    if   "true"  puts
-    else "false" puts endif
-endproc
-
-proc eputb in // bool -> ...
-    if   "true"  eputs
-    else "false" eputs endif
-endproc
+macro puti  stdout fputi endmacro // int -> ...
+macro eputi stderr fputi endmacro // int -> ...
