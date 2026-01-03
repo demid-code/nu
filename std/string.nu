@@ -1,5 +1,5 @@
 proc cstrlen in // ptr -> int
-    let ptr in
+    bind ptr endbind
         0 while true do
             ptr over sizeof(char) * + @char '\0' == if
                 break
@@ -7,11 +7,11 @@ proc cstrlen in // ptr -> int
 
             1 +
         endwhile
-    endlet
+    unbind*
 endproc
 
 proc cstreq in // ptr ptr -> bool
-    let str1 str2 in
+    bind str1 str2 endbind
         str1 cstrlen str2 cstrlen == if
             str1 cstrlen 0 while dup 2 pick < do
                 str1 over   sizeof(char) * + @8
@@ -26,5 +26,5 @@ proc cstreq in // ptr ptr -> bool
         else
             false
         endif
-    endlet
+    unbind*
 endproc

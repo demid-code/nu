@@ -10,6 +10,7 @@ class Parser:
         self.procs = []
 
         self.bind_name_stack = []
+        self.bind_names_all = []
 
         self.ops = []
 
@@ -61,33 +62,38 @@ class Parser:
 
                     self.procs.append(name.text)
 
-                if token.text == "let":
+                if token.text == "bind":
                     names = []
     
-                    found_in = False
+                    found_end = False
                     while not self.is_at_end():
                         tok, tok_idx = self.advance()
 
                         if tok.type == TokenType.WORD:
-                            if tok.text == "in":
-                                found_in = True
+                            if tok.text == "endbind":
+                                found_end = True
                                 break
                             else: names.append(tok.text)
 
-                    if len(names) <= 0: report_error("Expected bind names after `let`", token.loc)
+                    if len(names) <= 0: report_error("Expected bind names after `bind`", token.loc)
                     self.bind_name_stack.append(names)
+                    self.bind_names_all.append(names)
 
-                    if not found_in:
-                        report_error("Expected `in` after bind names", self.tokens[idx-1].loc)
+                    if not found_end:
+                        report_error("Expected `endbind` after bind names", self.tokens[idx-1].loc)
 
-                    self.add_op(OpType.LET, token, len(names))
-                    self.add_op(OpType.IN, self.tokens[self.current-1])
+                    self.add_op(OpType.BIND, token, len(names))
 
                     return
 
-                if token.text == "endlet":
+                if token.text == "unbind":
                     names = self.bind_name_stack.pop()
-                    self.add_op(OpType.ENDLET, token, len(names))
+                    self.add_op(OpType.UNBIND, token, len(names))
+                    return
+                
+                if token.text == "unbind*":
+                    self.add_op(OpType.UNBIND_ALL, token, sum([len(x) for x in self.bind_name_stack]))
+                    self.bind_name_stack = []
                     return
 
                 if token.text in WORD_TO_OP:

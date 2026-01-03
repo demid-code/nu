@@ -26,17 +26,17 @@ endmacro
 proc putc in // int -> ../
     sizeof(char) malloc
 
-    let char ptr in
+    bind char ptr endbind
         char ptr !8
         ptr sizeof(char) 1 stdout fwrite
-    endlet
+    unbind*
 endproc
 
 proc eputc in // int -> ../
     sizeof(char) malloc
 
-    let char ptr in
+    bind char ptr endbind
         char ptr !8
         ptr sizeof(char) 1 stderr fwrite
-    endlet
+    unbind*
 endproc

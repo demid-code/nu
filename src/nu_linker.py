@@ -13,6 +13,7 @@ OPS_TO_LINK = [
     OpType.PROC,
     OpType.ENDPROC,
     OpType.CALL,
+    OpType.RETURN,
 ]
 
 class Linker:
@@ -165,6 +166,22 @@ class Linker:
                 case OpType.CALL:
                     if op.token.text in self.procs:
                         self.ops[op_idx].operand = self.procs[op.token.text]["start"] + 3
+
+                case OpType.RETURN:
+                    self.empty_stack_error("return", op.token.loc)
+
+                    found = False
+                    for idx, opp in enumerate(self.ops[op_idx+1:]):
+                        opp_idx = idx + op_idx + 1
+
+                        if opp.type == OpType.ENDPROC:
+                            self.ops[op_idx].operand = opp_idx
+
+                            found = True
+                            break
+
+                    if not found:
+                        report_error("`return` can only be used inside procedure")
 
                 case _:
                     assert False, f"Unsupported OpType.{op.type.name} in Linker.scan_op()"

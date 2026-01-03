@@ -44,7 +44,7 @@ class Compiler:
                 self.writeln(f"stack_push(&stack, VAL_PTR(strs[{self.strs.index(op.operand)}]));", 2)
 
             case OpType.PUSH_BINDED:
-                self.writeln(f"Value val = addr_stack.data[addr_stack.size - {op.operand} - 1];", 2)
+                self.writeln(f"Value val = bind_stack.data[bind_stack.size - {op.operand} - 1];", 2)
                 self.writeln(f"stack_push(&stack, val);", 2)
 
             case OpType.PLUS:
@@ -160,24 +160,27 @@ class Compiler:
                 self.writeln(f"goto addr_{op.operand};", 2)
 
             case OpType.ENDPROC:
-                self.writeln("Value ret_addr = stack_pop(&addr_stack);", 2)
+                self.writeln("Value ret_addr = stack_pop(&proc_stack);", 2)
                 self.writeln("goto *addrs[AS_INT(ret_addr)];", 2)
 
             case OpType.CALL:
                 if op.operand != None:
-                    self.writeln(f"stack_push(&addr_stack, VAL_INT({op_idx + 1}));", 2)
+                    self.writeln(f"stack_push(&proc_stack, VAL_INT({op_idx + 1}));", 2)
                     self.writeln(f"goto addr_{op.operand};", 2)
+
+            case OpType.RETURN:
+                self.writeln(f"goto addr_{op.operand};", 2)
 
             case OpType.IN:
                 pass
 
-            case OpType.LET:
+            case OpType.BIND:
                 self.writeln(f"for (int i = 0; i < {op.operand}; i++)", 2)
-                self.writeln("    stack_push(&addr_stack, stack_pop(&stack));", 2)
+                self.writeln("    stack_push(&bind_stack, stack_pop(&stack));", 2)
 
-            case OpType.ENDLET:
+            case OpType.UNBIND | OpType.UNBIND_ALL:
                 self.writeln(f"for (int i = 0; i < {op.operand}; i++)", 2)
-                self.writeln("    stack_pop(&addr_stack);", 2)
+                self.writeln("    stack_pop(&bind_stack);", 2)
 
             case OpType.CMACRO:
                 self.writeln(f"{op.token.text}", 2)
@@ -185,7 +188,8 @@ class Compiler:
             case OpType.EOF:
                 write_jump = False
                 self.writeln("stack_free(&stack);", 2)
-                self.writeln("stack_free(&addr_stack);", 2)
+                self.writeln("stack_free(&proc_stack);", 2)
+                self.writeln("stack_free(&bind_stack);", 2)
                 self.writeln("return 0;", 2)
 
             case _:
@@ -205,8 +209,11 @@ class Compiler:
         self.writeln("ValueStack stack;", 1)
         self.writeln("stack_init(&stack);\n", 1)
 
-        self.writeln("ValueStack addr_stack;", 1)
-        self.writeln("stack_init(&addr_stack);\n", 1)
+        self.writeln("ValueStack proc_stack;", 1)
+        self.writeln("stack_init(&proc_stack);\n", 1)
+
+        self.writeln("ValueStack bind_stack;", 1)
+        self.writeln("stack_init(&bind_stack);\n", 1)
 
         if len(self.strs) > 0:
             self.writeln("char* strs[] = {%s};" % ", ".join([f"\"{s.encode("unicode_escape").decode()}\"" for s in self.strs]), 1)
