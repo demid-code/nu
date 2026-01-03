@@ -23,14 +23,14 @@ typedef enum {
 typedef struct {
     ValueType type;
     union {
-        int intVal;
+        int64_t intVal;
         double floatVal;
         bool boolVal;
         void* ptrVal;
     } as;
 } Value;
 
-#define VAL_INT(v)   ((Value){.type = TYPE_INT, .as.intVal = (int)(v)})
+#define VAL_INT(v)   ((Value){.type = TYPE_INT, .as.intVal = (int64_t)(v)})
 #define VAL_FLOAT(v) ((Value){.type = TYPE_FLOAT, .as.floatVal = (double)(v)})
 #define VAL_BOOL(v)  ((Value){.type = TYPE_BOOL, .as.boolVal = (bool)(v)})
 #define VAL_PTR(v)   ((Value){.type = TYPE_PTR, .as.ptrVal = (void*)(v)})

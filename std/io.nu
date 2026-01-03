@@ -41,3 +41,13 @@ proc eputc in // int -> ../
         ptr sizeof(char) 1 stderr fwrite drop
     unbind*
 endproc
+
+proc putb in // bool -> ...
+    if   "true"  puts
+    else "false" puts endif
+endproc
+
+proc eputb in // bool -> ...
+    if   "true"  eputs
+    else "false" eputs endif
+endproc
