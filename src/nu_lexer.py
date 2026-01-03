@@ -166,6 +166,9 @@ class Lexer:
             case "\"": self.make_string()
             case "'": self.make_char()
             case _ if char.isdigit(): self.make_number()
+            case "-":
+                if self.peek().isdigit(): self.make_number()
+                else: self.add_token(TokenType.WORD)
             case _: self.make_word()
 
     def lex(self) -> tuple[list[Token], dict[str, str]]:
