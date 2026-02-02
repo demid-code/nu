@@ -39,6 +39,21 @@ class Compiler:
                 self.writeln("Value b = stack_pop(&stack);", 2)
                 self.writeln("Value a = stack_pop(&stack);", 2)
                 self.writeln("stack_push(&stack, value_add(a, b));", 2)
+            
+            case OpType.MINUS:
+                self.writeln("Value b = stack_pop(&stack);", 2)
+                self.writeln("Value a = stack_pop(&stack);", 2)
+                self.writeln("stack_push(&stack, value_sub(a, b));", 2)
+
+            case OpType.MULTIPLY:
+                self.writeln("Value b = stack_pop(&stack);", 2)
+                self.writeln("Value a = stack_pop(&stack);", 2)
+                self.writeln("stack_push(&stack, value_mul(a, b));", 2)
+
+            case OpType.DIVIDE:
+                self.writeln("Value b = stack_pop(&stack);", 2)
+                self.writeln("Value a = stack_pop(&stack);", 2)
+                self.writeln("stack_push(&stack, value_div(a, b));", 2)
 
             case OpType.PRINT:
                 self.writeln("value_print(stack_pop(&stack));", 2)

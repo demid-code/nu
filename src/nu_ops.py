@@ -11,6 +11,9 @@ class OpType(IntEnum):
 
     # arithmetic
     PLUS = auto()
+    MINUS = auto()
+    MULTIPLY = auto()
+    DIVIDE = auto()
 
     # built-in
     PRINT = auto()
@@ -21,6 +24,9 @@ class OpType(IntEnum):
 WORD_TO_OPTYPE = {
     # arithmetic
     "+": OpType.PLUS,
+    "-": OpType.MINUS,
+    "*": OpType.MULTIPLY,
+    "/": OpType.DIVIDE,
 
     # built-in
     "print": OpType.PRINT,
