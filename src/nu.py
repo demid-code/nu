@@ -6,6 +6,7 @@ from nu_error import error, exit
 from nu_utils import write_file, cmd_call
 from nu_lexer import Lexer
 from nu_parser import Parser
+from nu_typechecker import TypeChecker
 from nu_compiler import Compiler
 
 def usage():
@@ -58,6 +59,9 @@ def main():
                 for i, op in enumerate(ops):
                     print(f"{i}: {op}")
                 return
+            
+            type_checker = TypeChecker(ops)
+            type_checker.typecheck()
             
             silent_mode = "-s" in argv
             

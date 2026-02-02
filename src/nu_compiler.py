@@ -29,7 +29,7 @@ class Compiler:
         self.writeln(f"addr_{op_idx}: %s // {op.type.name}" % "{", 1)
 
         match op.type:
-            case OpType.PUSH_INT:
+            case OpType.PUSH_INT | OpType.PUSH_CHAR:
                 self.writeln(f"stack_push(&stack, VAL_INT({op.operand}));", 2)
 
             case OpType.PUSH_FLOAT:

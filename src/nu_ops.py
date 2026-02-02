@@ -8,6 +8,7 @@ class OpType(IntEnum):
     # push
     PUSH_INT = auto()
     PUSH_FLOAT = auto()
+    PUSH_CHAR = auto()
 
     # arithmetic
     PLUS = auto()
