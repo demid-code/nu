@@ -1,0 +1,54 @@
+#pragma once
+
+#include <stdio.h>
+#include <stdlib.h>
+
+// VALUE
+
+typedef enum {
+    TYPE_INT,
+    TYPE_FLOAT,
+    TYPE_PTR,
+} ValueType;
+
+#define INT   int
+#define FLOAT double
+#define PTR   void*
+
+typedef struct {
+    ValueType type;
+    union {
+        INT   ival;
+        FLOAT fval;
+        PTR   pval;
+    } as;
+} Value;
+
+#define VAL_INT(x)   (Value){.type = TYPE_INT,   .as.ival = (INT)(x)}
+#define VAL_FLOAT(x) (Value){.type = TYPE_FLOAT, .as.fval = (FLOAT)(x)}
+#define VAL_PTR(x)   (Value){.type = TYPE_PTR,   .as.pval = (PTR)(x)}
+
+#define IS_INT(x)   (x).type == TYPE_INT
+#define IS_FLOAT(x) (x).type == TYPE_FLOAT
+#define IS_PTR(x)   (x).type == TYPE_PTR
+
+#define AS_INT(x)   (x).as.ival
+#define AS_FLOAT(x) (x).as.fval
+#define AS_PTR(x)   (x).as.pval
+
+void value_print(Value val);
+
+Value value_add(Value a, Value b);
+
+// STACK
+
+typedef struct {
+    Value* data;
+    size_t capacity;
+    size_t size;
+} ValueStack;
+
+void  stack_init(ValueStack *s);
+void  stack_free(ValueStack *s);
+void  stack_push(ValueStack *s, Value val);
+Value stack_pop(ValueStack *s);
