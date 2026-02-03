@@ -74,6 +74,26 @@ Value value_div(Value a, Value b) {
     }
 }
 
+Value value_to_int(Value val) {
+    switch (val.type) {
+    case TYPE_INT:   return val;
+    case TYPE_FLOAT: return VAL_INT((INT)AS_FLOAT(val));
+    }
+
+    fprintf(stderr, "Error: Unreachable in value_to_int\n");
+    exit(1);
+}
+
+Value value_to_float(Value val) {
+    switch (val.type) {
+    case TYPE_INT:   return VAL_FLOAT((FLOAT)AS_INT(val));
+    case TYPE_FLOAT: return val;
+    }
+
+    fprintf(stderr, "Error: Unreachable in value_to_float\n");
+    exit(1);
+}
+
 // STACK
 
 void stack_init(ValueStack *s) {

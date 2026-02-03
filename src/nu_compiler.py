@@ -55,6 +55,12 @@ class Compiler:
                 self.writeln("Value a = stack_pop(&stack);", 2)
                 self.writeln("stack_push(&stack, value_div(a, b));", 2)
 
+            case OpType.TO_INT | OpType.TO_CHAR | OpType.TO_BOOL:
+                self.writeln("stack_push(&stack, value_to_int(stack_pop(&stack)));", 2)
+
+            case OpType.TO_FLOAT:
+                self.writeln("stack_push(&stack, value_to_float(stack_pop(&stack)));", 2)
+
             case OpType.PRINT:
                 self.writeln("value_print(stack_pop(&stack));", 2)
 

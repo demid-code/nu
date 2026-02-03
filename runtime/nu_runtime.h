@@ -43,6 +43,9 @@ Value value_sub(Value a, Value b);
 Value value_mul(Value a, Value b);
 Value value_div(Value a, Value b);
 
+Value value_to_int(Value val);
+Value value_to_float(Value val);
+
 // STACK
 
 typedef struct {

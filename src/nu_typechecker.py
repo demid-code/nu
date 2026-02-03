@@ -7,6 +7,7 @@ class ValueType(IntEnum):
     INT = auto()
     FLOAT = auto()
     CHAR = auto()
+    BOOL = auto()
     PTR = auto()
 
 class TypeChecker:
@@ -29,6 +30,10 @@ class TypeChecker:
     def pop(self) -> tuple[ValueType, Loc]:
         return self.stack.pop()
 
+    def check_arguments(self, amount: int, name: str, loc: Loc):
+        if len(self.stack) < amount:
+            error(f"not enough arguments for `{name}`", loc); exit(1)
+
     def check_end_stack(self):
         if len(self.stack) != 0:
             val = self.stack[-1]
@@ -44,17 +49,16 @@ class TypeChecker:
             case OpType.PUSH_CHAR:  self.push(ValueType.CHAR, op.token.loc)
 
             case OpType.PLUS:
-                if len(self.stack) < 2:
-                    error("not enough arguments for `+`", op.token.loc); exit(1)
+                self.check_arguments(2, "+", op.token.loc)
 
-                b_type, b_loc = self.pop()
-                a_type, a_loc = self.pop()
+                b_type, _ = self.pop()
+                a_type, _ = self.pop()
 
                 if a_type == b_type:
                     if a_type in (ValueType.PTR, ):
                         error(f"can't do {a_type.name} + {b_type.name}", op.token.loc); exit(1)
 
-                    self.push(a_type, op.token.loc)
+                    self.push(ValueType.FLOAT if a_type == ValueType.FLOAT else ValueType.INT, op.token.loc)
                 else:
                     if (a_type == ValueType.INT and b_type == ValueType.FLOAT): self.push(ValueType.FLOAT, op.token.loc); return
                     if (a_type == ValueType.FLOAT and b_type == ValueType.INT): self.push(ValueType.FLOAT, op.token.loc); return
@@ -65,14 +69,13 @@ class TypeChecker:
                     error(f"can't do {a_type.name} + {b_type.name}", op.token.loc); exit(1)
 
             case OpType.MINUS:
-                if len(self.stack) < 2:
-                    error("not enough arguments for `-`", op.token.loc); exit(1)
+                self.check_arguments(2, "-", op.token.loc)
 
-                b_type, b_loc = self.pop()
-                a_type, a_loc = self.pop()
+                b_type, _ = self.pop()
+                a_type, _ = self.pop()
 
                 if a_type == b_type:
-                    self.push(a_type, op.token.loc)
+                    self.push(ValueType.FLOAT if a_type == ValueType.FLOAT else ValueType.INT, op.token.loc)
                 else:
                     if (a_type == ValueType.INT and b_type == ValueType.FLOAT): self.push(ValueType.FLOAT, op.token.loc); return
                     if (a_type == ValueType.FLOAT and b_type == ValueType.INT): self.push(ValueType.FLOAT, op.token.loc); return
@@ -83,17 +86,16 @@ class TypeChecker:
                     error(f"can't do {a_type.name} - {b_type.name}", op.token.loc); exit(1)
 
             case OpType.MULTIPLY:
-                if len(self.stack) < 2:
-                    error("not enough arguments for `*`", op.token.loc); exit(1)
+                self.check_arguments(2, "*", op.token.loc)
 
-                b_type, b_loc = self.pop()
-                a_type, a_loc = self.pop()
+                b_type, _ = self.pop()
+                a_type, _ = self.pop()
 
                 if a_type == b_type:
                     if a_type in (ValueType.PTR, ):
                         error(f"can't do {a_type.name} * {b_type.name}", op.token.loc); exit(1)
 
-                    self.push(a_type, op.token.loc)
+                    self.push(ValueType.FLOAT if a_type == ValueType.FLOAT else ValueType.INT, op.token.loc)
                 else:
                     if (a_type == ValueType.INT and b_type == ValueType.FLOAT): self.push(ValueType.FLOAT, op.token.loc); return
                     if (a_type == ValueType.FLOAT and b_type == ValueType.INT): self.push(ValueType.FLOAT, op.token.loc); return
@@ -101,11 +103,10 @@ class TypeChecker:
                     error(f"can't do {a_type.name} * {b_type.name}", op.token.loc); exit(1)
 
             case OpType.DIVIDE:
-                if len(self.stack) < 2:
-                    error("not enough arguments for `/`", op.token.loc); exit(1)
+                self.check_arguments(2, "/", op.token.loc)
 
-                b_type, b_loc = self.pop()
-                a_type, a_loc = self.pop()
+                b_type, _ = self.pop()
+                a_type, _ = self.pop()
 
                 if a_type == b_type:
                     if a_type in (ValueType.PTR, ):
@@ -118,10 +119,44 @@ class TypeChecker:
     
                     error(f"can't do {a_type.name} / {b_type.name}", op.token.loc); exit(1)
 
+            case OpType.TO_INT:
+                self.check_arguments(1, "$int", op.token.loc)
+
+                val_type, val_loc = self.pop()
+                if val_type == ValueType.PTR:
+                    error(f"can't convert {val_type.name.lower()} to int", val_loc); exit(1)
+
+                self.push(ValueType.INT, op.token.loc)
+
+            case OpType.TO_FLOAT:
+                self.check_arguments(1, "$float", op.token.loc)
+
+                val_type, val_loc = self.pop()
+                if val_type == ValueType.PTR:
+                    error(f"can't convert {val_type.name.lower()} to float", val_loc); exit(1)
+
+                self.push(ValueType.FLOAT, op.token.loc)
+
+            case OpType.TO_CHAR:
+                self.check_arguments(1, "$char", op.token.loc)
+
+                val_type, val_loc = self.pop()
+                if val_type == ValueType.PTR:
+                    error(f"can't convert {val_type.name.lower()} to char", val_loc); exit(1)
+
+                self.push(ValueType.CHAR, op.token.loc)
+
+            case OpType.TO_BOOL:
+                self.check_arguments(1, "$bool", op.token.loc)
+
+                val_type, val_loc = self.pop()
+                if val_type == ValueType.PTR:
+                    error(f"can't convert {val_type.name.lower()} to bool", val_loc); exit(1)
+
+                self.push(ValueType.BOOL, op.token.loc)
+
             case OpType.PRINT:
-                if len(self.stack) < 1:
-                    error("not enough arguments for `print`", op.token.loc); exit(1)
-                
+                self.check_arguments(1, "print", op.token.loc)
                 self.pop()
 
             case OpType.EOF:
