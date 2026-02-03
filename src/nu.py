@@ -18,8 +18,9 @@ def usage():
     print("    com   <filepath>    Compiles program")
     print()
     print("Flags:")
-    print("    -r    Run after successfull compilation")
-    print("    -s    Silent mode")
+    print("    -r --run       Run after successfull compilation")
+    print("    -s --silent    Silent mode")
+    print("    -u --unsafe    Disables typechecking")
     print()
 
 def main():
@@ -60,10 +61,12 @@ def main():
                     print(f"{i}: {op}")
                 return
             
-            type_checker = TypeChecker(ops)
-            type_checker.typecheck()
+            unsafe = ("-u" in argv) or ("--unsafe" in argv)
+            if not unsafe:
+                type_checker = TypeChecker(ops)
+                type_checker.typecheck()
             
-            silent_mode = "-s" in argv
+            silent_mode = ("-s" in argv) or ("--silent" in argv)
             
             build_path = filepath.parent.joinpath("build")
             build_path.mkdir(exist_ok=True)
@@ -87,7 +90,7 @@ def main():
 
             cmd_call(["gcc", "-o", exe_name, c_path, build_runtime_c_path], silent_mode)
 
-            if "-r" in argv:
+            if ("-r" in argv) or ("--run" in argv):
                 cmd_call([exe_name], silent_mode)
 
         case _:
