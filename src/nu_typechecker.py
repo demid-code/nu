@@ -44,9 +44,10 @@ class TypeChecker:
         op = self.advance()
 
         match op.type:
-            case OpType.PUSH_INT:   self.push(ValueType.INT, op.token.loc)
-            case OpType.PUSH_FLOAT: self.push(ValueType.FLOAT, op.token.loc)
-            case OpType.PUSH_CHAR:  self.push(ValueType.CHAR, op.token.loc)
+            case OpType.PUSH_INT:    self.push(ValueType.INT, op.token.loc)
+            case OpType.PUSH_FLOAT:  self.push(ValueType.FLOAT, op.token.loc)
+            case OpType.PUSH_CHAR:   self.push(ValueType.CHAR, op.token.loc)
+            case OpType.PUSH_STRING: self.push(ValueType.PTR, op.token.loc)
 
             case OpType.PLUS:
                 self.check_arguments(2, "+", op.token.loc)

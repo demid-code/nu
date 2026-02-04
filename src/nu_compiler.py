@@ -8,6 +8,8 @@ class Compiler:
         self.write_mode = None
         self.writes = {"init": "", "main": ""}
 
+        self.strs = []
+
     def write(self, txt: str, tabs: int = 0):
         self.writes[self.write_mode] += f"{"    " * tabs}{txt}"
 
@@ -34,6 +36,13 @@ class Compiler:
 
             case OpType.PUSH_FLOAT:
                 self.writeln(f"stack_push(&stack, VAL_FLOAT({op.operand}));", 2)
+
+            case OpType.PUSH_STRING:
+                if not op.operand in self.strs:
+                    self.strs.append(op.operand)
+
+                idx = self.strs.index(op.operand)
+                self.writeln(f"stack_push(&stack, VAL_PTR(strs[{idx}]));", 2)
 
             case OpType.PLUS:
                 self.writeln("Value b = stack_pop(&stack);", 2)
@@ -84,6 +93,9 @@ class Compiler:
         self.write_mode = "init"
         self.writeln("ValueStack stack;", 1)
         self.writeln("stack_init(&stack);\n", 1)
+
+        if len(self.strs) > 0:
+            self.writeln("char* strs[] = {%s};\n" % ", ".join(f"\"{x}\"" for x in self.strs), 1)
 
         self.writeln("goto addr_0;\n", 1)
 

@@ -33,6 +33,9 @@ class Parser:
                 char = token.text.encode().decode("unicode_escape")
                 self.add_op(OpType.PUSH_CHAR, token, str(ord(char)))
 
+            case TokenType.STRING:
+                self.add_op(OpType.PUSH_STRING, token, token.text)
+
             case TokenType.WORD:
                 if token.text in WORD_TO_OPTYPE:
                     self.add_op(WORD_TO_OPTYPE.get(token.text), token)
