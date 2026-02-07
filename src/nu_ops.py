@@ -18,6 +18,8 @@ class OpType(IntEnum):
 
     # comparing
     EQUAL = auto()
+    GREATER = auto()
+    LESS = auto()
 
     # type casting
     TO_INT = auto()
@@ -39,6 +41,8 @@ WORD_TO_OPTYPE = {
 
     # comparing
     "==": OpType.EQUAL,
+    ">":  OpType.GREATER,
+    "<":  OpType.LESS,
 
     # type casting
     "$int":   OpType.TO_INT,

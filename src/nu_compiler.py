@@ -75,6 +75,16 @@ class Compiler:
                 self.writeln("Value a = stack_pop(&stack);", 2)
                 self.writeln("stack_push(&stack, value_equal(a, b));", 2)
 
+            case OpType.GREATER:
+                self.writeln("Value b = stack_pop(&stack);", 2)
+                self.writeln("Value a = stack_pop(&stack);", 2)
+                self.writeln("stack_push(&stack, value_greater(a, b));", 2)
+
+            case OpType.LESS:
+                self.writeln("Value b = stack_pop(&stack);", 2)
+                self.writeln("Value a = stack_pop(&stack);", 2)
+                self.writeln("stack_push(&stack, value_less(a, b));", 2)
+
             case OpType.PRINT:
                 self.writeln("value_print(stack_pop(&stack));", 2)
 

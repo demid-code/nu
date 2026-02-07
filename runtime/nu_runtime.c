@@ -84,6 +84,36 @@ Value value_equal(Value a, Value b) {
     }
 }
 
+Value value_greater(Value a, Value b) {
+    if (a.type == b.type) {
+        switch (a.type) {
+        case TYPE_INT:   return VAL_INT(AS_INT(a)   > AS_INT(b));
+        case TYPE_FLOAT: return VAL_INT(AS_FLOAT(a) > AS_FLOAT(b));
+        case TYPE_PTR:   return VAL_INT(AS_PTR(a)   > AS_PTR(b));
+        }
+    } else {
+        if (IS_INT(a) && IS_FLOAT(b)) return VAL_INT((FLOAT)AS_INT(a) > AS_FLOAT(b));
+        if (IS_FLOAT(a) && IS_INT(b)) return VAL_INT(AS_FLOAT(a)      > (FLOAT)AS_INT(b));
+        fprintf(stderr, "Error: Invalid types in value_greater\n");
+        exit(1);
+    }
+}
+
+Value value_less(Value a, Value b) {
+    if (a.type == b.type) {
+        switch (a.type) {
+        case TYPE_INT:   return VAL_INT(AS_INT(a)   < AS_INT(b));
+        case TYPE_FLOAT: return VAL_INT(AS_FLOAT(a) < AS_FLOAT(b));
+        case TYPE_PTR:   return VAL_INT(AS_PTR(a)   < AS_PTR(b));
+        }
+    } else {
+        if (IS_INT(a) && IS_FLOAT(b)) return VAL_INT((FLOAT)AS_INT(a) < AS_FLOAT(b));
+        if (IS_FLOAT(a) && IS_INT(b)) return VAL_INT(AS_FLOAT(a)      < (FLOAT)AS_INT(b));
+        fprintf(stderr, "Error: Invalid types in value_less\n");
+        exit(1);
+    }
+}
+
 Value value_to_int(Value val) {
     switch (val.type) {
     case TYPE_INT:   return val;

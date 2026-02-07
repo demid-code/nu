@@ -44,6 +44,8 @@ Value value_mul(Value a, Value b);
 Value value_div(Value a, Value b);
 
 Value value_equal(Value a, Value b);
+Value value_greater(Value a, Value b);
+Value value_less(Value a, Value b);
 
 Value value_to_int(Value val);
 Value value_to_float(Value val);
