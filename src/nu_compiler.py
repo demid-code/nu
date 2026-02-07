@@ -73,6 +73,9 @@ class Compiler:
             case OpType.PRINT:
                 self.writeln("value_print(stack_pop(&stack));", 2)
 
+            case OpType.DROP:
+                self.writeln("stack_pop(&stack);", 2)
+
             case OpType.EOF:
                 write_jump = False
                 self.writeln("stack_free(&stack);", 2)

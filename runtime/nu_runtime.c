@@ -108,6 +108,7 @@ void stack_init(ValueStack *s) {
 
 void stack_free(ValueStack *s) {
     free(s->data);
+    s->data = NULL;
     s->capacity = 0;
     s->size = 0;
 }
@@ -126,7 +127,7 @@ void stack_push(ValueStack *s, Value val) {
 }
 
 Value stack_pop(ValueStack *s) {
-    if (s->size < 0) {
+    if (s->size == 0) {
         fprintf(stderr, "Error: Stack Underflow\n");
         exit(1);
     }
