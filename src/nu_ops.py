@@ -23,6 +23,8 @@ class OpType(IntEnum):
 
     # logic
     NOT = auto()
+    AND = auto()
+    OR = auto()
 
     # type casting
     TO_INT = auto()
@@ -49,6 +51,8 @@ WORD_TO_OPTYPE = {
 
     # logic
     "not": OpType.NOT,
+    "and": OpType.AND,
+    "or":  OpType.OR,
 
     # type casting
     "$int":   OpType.TO_INT,

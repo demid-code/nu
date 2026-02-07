@@ -88,6 +88,16 @@ class Compiler:
             case OpType.NOT:
                 self.writeln("stack_push(&stack, VAL_INT(!value_as_bool(stack_pop(&stack))));", 2)
 
+            case OpType.AND:
+                self.writeln("Value b = stack_pop(&stack);", 2)
+                self.writeln("Value a = stack_pop(&stack);", 2)
+                self.writeln("stack_push(&stack, VAL_INT(value_as_bool(a) && value_as_bool(b)));")
+
+            case OpType.OR:
+                self.writeln("Value b = stack_pop(&stack);", 2)
+                self.writeln("Value a = stack_pop(&stack);", 2)
+                self.writeln("stack_push(&stack, VAL_INT(value_as_bool(a) || value_as_bool(b)));")
+
             case OpType.PRINT:
                 self.writeln("value_print(stack_pop(&stack));", 2)
 
