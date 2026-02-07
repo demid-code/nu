@@ -7,7 +7,6 @@ from nu_utils import write_file, cmd_call
 from nu_lexer import Lexer
 from nu_preparsing import PreParser
 from nu_parser import Parser
-from nu_typechecker import TypeChecker
 from nu_compiler import Compiler
 
 def usage():
@@ -21,7 +20,6 @@ def usage():
     print("Flags:")
     print("    -r --run       Run after successfull compilation")
     print("    -s --silent    Silent mode")
-    print("    -u --unsafe    Disables typechecking")
     print()
 
 def main():
@@ -65,11 +63,6 @@ def main():
                 for i, op in enumerate(ops):
                     print(f"{i}: {op}")
                 return
-            
-            unsafe = ("-u" in argv) or ("--unsafe" in argv)
-            if not unsafe:
-                type_checker = TypeChecker(ops)
-                type_checker.typecheck()
             
             silent_mode = ("-s" in argv) or ("--silent" in argv)
             

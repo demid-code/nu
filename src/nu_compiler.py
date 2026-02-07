@@ -31,7 +31,7 @@ class Compiler:
         self.writeln(f"addr_{op_idx}: %s // {op.type.name}" % "{", 1)
 
         match op.type:
-            case OpType.PUSH_INT | OpType.PUSH_CHAR:
+            case OpType.PUSH_INT:
                 self.writeln(f"stack_push(&stack, VAL_INT({op.operand}));", 2)
 
             case OpType.PUSH_FLOAT:
@@ -64,7 +64,7 @@ class Compiler:
                 self.writeln("Value a = stack_pop(&stack);", 2)
                 self.writeln("stack_push(&stack, value_div(a, b));", 2)
 
-            case OpType.TO_INT | OpType.TO_CHAR | OpType.TO_BOOL:
+            case OpType.TO_INT:
                 self.writeln("stack_push(&stack, value_to_int(stack_pop(&stack)));", 2)
 
             case OpType.TO_FLOAT:

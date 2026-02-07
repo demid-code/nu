@@ -8,7 +8,6 @@ class OpType(IntEnum):
     # push
     PUSH_INT = auto()
     PUSH_FLOAT = auto()
-    PUSH_CHAR = auto()
     PUSH_STRING = auto()
 
     # arithmetic
@@ -20,8 +19,6 @@ class OpType(IntEnum):
     # type casting
     TO_INT = auto()
     TO_FLOAT = auto()
-    TO_CHAR = auto()
-    TO_BOOL = auto()
 
     # built-in
     PRINT = auto()
@@ -39,8 +36,6 @@ WORD_TO_OPTYPE = {
     # type casting
     "$int":   OpType.TO_INT,
     "$float": OpType.TO_FLOAT,
-    "$char":  OpType.TO_CHAR,
-    "$bool":  OpType.TO_BOOL,
 
     # built-in
     "print": OpType.PRINT,
