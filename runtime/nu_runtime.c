@@ -74,6 +74,16 @@ Value value_div(Value a, Value b) {
     }
 }
 
+Value value_equal(Value a, Value b) {
+    if (a.type != b.type) return VAL_INT(0);
+
+    switch (a.type) {
+    case TYPE_INT:   return VAL_INT(AS_INT(a) == AS_INT(b));
+    case TYPE_FLOAT: return VAL_INT(AS_FLOAT(a) == AS_FLOAT(b));
+    case TYPE_PTR:   return VAL_INT(AS_PTR(a) == AS_PTR(b));
+    }
+}
+
 Value value_to_int(Value val) {
     switch (val.type) {
     case TYPE_INT:   return val;
