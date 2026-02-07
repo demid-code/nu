@@ -5,6 +5,7 @@ from pathlib import Path
 from nu_error import error, exit
 from nu_utils import write_file, cmd_call
 from nu_lexer import Lexer
+from nu_preparsing import PreParser
 from nu_parser import Parser
 from nu_typechecker import TypeChecker
 from nu_compiler import Compiler
@@ -51,6 +52,10 @@ def main():
                 for token in tokens:
                     print(token)
                 return
+            
+            pre_parser = PreParser(tokens)
+            tokens = pre_parser.pre_parse()
+            if len(tokens) == 0: return
             
             parser = Parser(tokens)
             ops = parser.parse()
