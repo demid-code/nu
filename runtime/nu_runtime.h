@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 // VALUE
 
@@ -37,6 +38,7 @@ typedef struct {
 #define AS_PTR(x)   (x).as.pval
 
 void value_print(Value val);
+bool value_as_bool(Value val);
 
 Value value_add(Value a, Value b);
 Value value_sub(Value a, Value b);

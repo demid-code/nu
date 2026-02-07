@@ -85,6 +85,9 @@ class Compiler:
                 self.writeln("Value a = stack_pop(&stack);", 2)
                 self.writeln("stack_push(&stack, value_less(a, b));", 2)
 
+            case OpType.NOT:
+                self.writeln("stack_push(&stack, VAL_INT(!value_as_bool(stack_pop(&stack))));", 2)
+
             case OpType.PRINT:
                 self.writeln("value_print(stack_pop(&stack));", 2)
 

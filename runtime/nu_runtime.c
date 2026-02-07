@@ -10,6 +10,14 @@ void value_print(Value val) {
     }
 }
 
+bool value_as_bool(Value val) {
+    switch (val.type) {
+    case TYPE_INT:   return AS_INT(val) > 0;
+    case TYPE_FLOAT: return AS_FLOAT(val) > 0;
+    case TYPE_PTR:   return AS_PTR(val) != NULL;
+    }
+}
+
 Value value_add(Value a, Value b) {
     if (a.type == b.type) {
         switch (a.type) {
