@@ -182,3 +182,12 @@ Value stack_pop(ValueStack *s) {
 
     return s->data[--s->size];
 }
+
+Value stack_pick(ValueStack *s, size_t index) {
+    if (index < 0 || index > s->size - 1) {
+        fprintf(stderr, "Error: Invalid index in stack_pick\n");
+        exit(1);
+    }
+
+    return s->data[s->size - index - 1];
+}
