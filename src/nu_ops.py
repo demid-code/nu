@@ -36,6 +36,12 @@ class OpType(IntEnum):
     READ_32 = auto()
     READ_64 = auto()
 
+    # write
+    WRITE_8 = auto()
+    WRITE_16 = auto()
+    WRITE_32 = auto()
+    WRITE_64 = auto()
+
     # built-in
     PRINT = auto()
     DROP = auto()
@@ -82,6 +88,12 @@ WORD_TO_OPTYPE = {
     "@16": OpType.READ_16,
     "@32": OpType.READ_32,
     "@64": OpType.READ_64,
+
+    # write
+    "!8": OpType.WRITE_8,
+    "!16": OpType.WRITE_16,
+    "!32": OpType.WRITE_32,
+    "!64": OpType.WRITE_64,
 
     # built-in
     "print": OpType.PRINT,

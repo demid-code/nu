@@ -5,13 +5,14 @@ from nu_tokens import TokenType, Token
 from nu_lexer import Lexer
 
 class PreParser:
-    def __init__(self, tokens: list[Token], paths: list[Path] = [], included_paths: list[Path] = []):
+    def __init__(self, tokens: list[Token], cmacros: dict[str, dict] = {}, paths: list[Path] = [], included_paths: list[Path] = []):
         self.tokens = tokens
         self.current = 0
 
         self.paths = paths
         self.included_paths = included_paths
 
+        self.cmacros = cmacros
         self.macros = {}
 
     def is_at_end(self) -> bool:
@@ -78,9 +79,11 @@ class PreParser:
             if not final_path.exists(): continue
             if final_path in self.included_paths: continue
 
-            included_tokens = Lexer(final_path).lex()
+            lexer = Lexer(final_path, self.cmacros)
+            included_tokens, cmacros = lexer.lex()
+            self.cmacros.update(cmacros)
 
-            pre_parser = PreParser(included_tokens, self.paths, self.included_paths)
+            pre_parser = PreParser(included_tokens, self.cmacros, self.paths, self.included_paths)
             included_tokens = pre_parser.pre_parse()
 
             self.macros.update(pre_parser.macros)
@@ -103,6 +106,9 @@ class PreParser:
             if token.text in self.macros: self.insert_macro()
 
             if token.text == "include": self.parse_include()
+
+            if token.text in self.cmacros:
+                self.tokens[token_idx] = Token(TokenType.CMACRO, self.cmacros[token.text]["body"], token.loc.copy())
 
     def pre_parse(self) -> list[Token]:
         while not self.is_at_end():
