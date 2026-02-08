@@ -57,7 +57,7 @@ def main():
             if len(tokens) == 0: return
             
             parser = Parser(tokens)
-            ops = parser.parse()
+            ops, mems = parser.parse()
             if len(ops) == 0: return
 
             linker = Linker(ops)
@@ -86,7 +86,7 @@ def main():
             c_path = build_path.joinpath("main.c")
             exe_name = build_path.joinpath(f"{filename}.exe") if os.name == "nt" else build_path.joinpath(filename)
 
-            compiler = Compiler(ops)
+            compiler = Compiler(ops, mems)
             output = compiler.compile()
 
             write_file(c_path, output)

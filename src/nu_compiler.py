@@ -1,13 +1,14 @@
 from nu_ops import OpType, Op
 
 class Compiler:
-    def __init__(self, ops: list[Op]):
+    def __init__(self, ops: list[Op], mems: dict[str, dict]):
         self.ops = ops
         self.current = 0
 
         self.write_mode = None
         self.writes = {"init": "", "main": ""}
 
+        self.mems = mems
         self.strs = []
 
     def write(self, txt: str, tabs: int = 0):
@@ -43,6 +44,10 @@ class Compiler:
 
                 idx = self.strs.index(op.operand)
                 self.writeln(f"stack_push(&stack, VAL_PTR(strs[{idx}]));", 2)
+
+            case OpType.PUSH_MEM:
+                index = list(self.mems.keys()).index(op.token.text)
+                self.writeln(f"stack_push(&stack, VAL_PTR(&mem_{index}));", 2)
 
             case OpType.PLUS:
                 self.writeln("Value b = stack_pop(&stack);", 2)
@@ -194,6 +199,10 @@ class Compiler:
 
         if len(self.strs) > 0:
             self.writeln("char* strs[] = {%s};\n" % ", ".join(f"\"{x}\"" for x in self.strs), 1)
+
+        if self.mems:
+            for mem_idx, mem_name in enumerate(self.mems.keys()):
+                self.writeln(f"uint8_t mem_{mem_idx}[{self.mems[mem_name]["size"]}];", 1)
 
         self.writeln("goto addr_0;\n", 1)
 
