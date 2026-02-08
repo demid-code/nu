@@ -36,6 +36,26 @@ macro cstrlen // cstr -> int
     swap drop swap drop
 endmacro
 
+macro cstreq // str str -> bool
+    over cstrlen over cstrlen == if
+        true over cstrlen 0
+        while dup 2 pick < do
+            4 pick over   sizeof(char) * + @char // 1 char
+            4 pick 2 pick sizeof(char) * + @char // 2 char
+
+            != if
+                drop drop drop
+                false 2 2
+            endif
+
+            1 +
+        endwhile
+        drop drop swap drop swap drop
+    else
+        drop drop false
+    endif
+endmacro
+
 macro fputs // filepath buf
     sizeof(char) over cstrlen 3 roll fwrite drop
 endmacro
