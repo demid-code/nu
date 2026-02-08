@@ -191,3 +191,19 @@ Value stack_pick(ValueStack *s, size_t index) {
 
     return s->data[s->size - index - 1];
 }
+
+void stack_roll(ValueStack *s, size_t index) {
+    if (index < 0 || index > s->size - 1) {
+        fprintf(stderr, "Error: Invalid index in stack_pick\n");
+        exit(1);
+    }
+
+    size_t pos = s->size - index - 1;
+    Value val = s->data[pos];
+
+    for (size_t i = pos; i < s->size - 1; i++) {
+        s->data[i] = s->data[i + 1];
+    }
+
+    s->data[s->size - 1] = val;
+}

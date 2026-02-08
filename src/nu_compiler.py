@@ -108,6 +108,10 @@ class Compiler:
                 self.writeln("Value index = stack_pop(&stack);", 2)
                 self.writeln("stack_push(&stack, stack_pick(&stack, AS_INT(index)));", 2)
 
+            case OpType.ROLL:
+                self.writeln("Value index = stack_pop(&stack);", 2)
+                self.writeln("stack_roll(&stack, AS_INT(index));", 2)
+
             case OpType.CMACRO:
                 self.writeln(op.operand, 2)
 
