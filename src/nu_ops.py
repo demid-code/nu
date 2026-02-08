@@ -36,6 +36,11 @@ class OpType(IntEnum):
     PICK = auto()
     ROLL = auto()
 
+    # if-else
+    IF = auto()
+    ELSE = auto()
+    ENDIF = auto()
+
     # specific
     CMACRO = auto()
     EOF = auto()
@@ -66,6 +71,11 @@ WORD_TO_OPTYPE = {
     "drop":  OpType.DROP,
     "pick":  OpType.PICK,
     "roll":  OpType.ROLL,
+
+    # if-else
+    "if":    OpType.IF,
+    "else":  OpType.ELSE,
+    "endif": OpType.ENDIF,
 }
 
 @dataclass
