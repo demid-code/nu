@@ -1,5 +1,15 @@
 include "std/core.nu"
 
+cmacro malloc // size -> ptr
+    Value size = stack_pop(&stack);
+    stack_push(&stack, VAL_PTR(malloc((size_t)AS_INT(size))));
+endcmacro
+
+cmacro free // ptr
+    Value ptr = stack_pop(&stack);
+    free((void*)AS_PTR(ptr));
+endcmacro
+
 cmacro stdin  stack_push(&stack, VAL_PTR(stdin));  endcmacro
 cmacro stdout stack_push(&stack, VAL_PTR(stdout)); endcmacro
 cmacro stderr stack_push(&stack, VAL_PTR(stderr)); endcmacro
@@ -32,3 +42,13 @@ endmacro
 
 macro puts  stdout swap fputs endmacro // buf
 macro eputs stderr swap fputs endmacro // buf
+
+macro fputc // filepath char
+    sizeof(char) malloc
+    swap over !char
+    dup sizeof(char) 1 4 roll fwrite drop
+    free
+endmacro
+
+macro putc  stdout swap fputc endmacro // char
+macro eputc stderr swap fputc endmacro // char
