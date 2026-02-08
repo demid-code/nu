@@ -5,7 +5,7 @@ from pathlib import Path
 from nu_error import error, exit
 from nu_utils import write_file, cmd_call
 from nu_lexer import Lexer
-from nu_preparsing import PreParser
+from nu_preparser import PreParser
 from nu_parser import Parser
 from nu_linker import Linker
 from nu_compiler import Compiler

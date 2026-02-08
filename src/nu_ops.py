@@ -30,6 +30,12 @@ class OpType(IntEnum):
     TO_INT = auto()
     TO_FLOAT = auto()
 
+    # read
+    READ_8 = auto()
+    READ_16 = auto()
+    READ_32 = auto()
+    READ_64 = auto()
+
     # built-in
     PRINT = auto()
     DROP = auto()
@@ -70,6 +76,12 @@ WORD_TO_OPTYPE = {
     # type casting
     "$int":   OpType.TO_INT,
     "$float": OpType.TO_FLOAT,
+
+    # read
+    "@8":  OpType.READ_8,
+    "@16": OpType.READ_16,
+    "@32": OpType.READ_32,
+    "@64": OpType.READ_64,
 
     # built-in
     "print": OpType.PRINT,

@@ -98,6 +98,22 @@ class Compiler:
                 self.writeln("Value a = stack_pop(&stack);", 2)
                 self.writeln("stack_push(&stack, VAL_INT(value_as_bool(a) || value_as_bool(b)));")
 
+            case OpType.READ_8:
+                self.writeln("Value ptr = stack_pop(&stack);", 2)
+                self.writeln("stack_push(&stack, VAL_INT(*(uint8_t*)AS_PTR(ptr)));", 2)
+
+            case OpType.READ_16:
+                self.writeln("Value ptr = stack_pop(&stack);", 2)
+                self.writeln("stack_push(&stack, VAL_INT(*(uint16_t*)AS_PTR(ptr)));", 2)
+
+            case OpType.READ_32:
+                self.writeln("Value ptr = stack_pop(&stack);", 2)
+                self.writeln("stack_push(&stack, VAL_INT(*(uint32_t*)AS_PTR(ptr)));", 2)
+
+            case OpType.READ_64:
+                self.writeln("Value ptr = stack_pop(&stack);", 2)
+                self.writeln("stack_push(&stack, VAL_INT(*(uint64_t*)AS_PTR(ptr)));", 2)
+
             case OpType.PRINT:
                 self.writeln("value_print(stack_pop(&stack));", 2)
 

@@ -59,6 +59,7 @@ class PreParser:
     def insert_macro(self):
         token, token_idx = self.peek(-1)
         self.tokens[token_idx:token_idx+1] = self.macros[token.text]["body"]
+        self.current = token_idx
 
     def parse_include(self):
         token, token_idx = self.peek(-1)
