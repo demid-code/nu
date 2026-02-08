@@ -35,6 +35,7 @@ class OpType(IntEnum):
     DROP = auto()
 
     # specific
+    CMACRO = auto()
     EOF = auto()
 
 WORD_TO_OPTYPE = {

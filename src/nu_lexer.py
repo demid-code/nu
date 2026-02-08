@@ -16,6 +16,8 @@ class Lexer:
         self.source = read_file(filepath)
         self.tokens = []
 
+        self.cmacros = {}
+
         self.start = 0
         self.current = 0
 
@@ -52,9 +54,50 @@ class Lexer:
         else:
             self.add_token(TokenType.WORD)
 
-    def make_word(self):
+    def lex_word(self):
         while not self.is_at_end() and not self.is_whitespace(self.peek()):
             self.advance()
+
+        return self.source[self.start:self.current]
+
+    def skip_whitespace(self):
+        while self.is_whitespace(self.peek()):
+            self.advance()
+
+    def make_word(self):
+        word = self.lex_word()
+
+        if word == "cmacro":
+            cmacro_loc = self.loc.copy()
+
+            self.skip_whitespace()
+            if self.is_at_end():
+                error("expected cmacro name", self.loc); exit(1)
+
+            self.start = self.current
+            cmacro_name = self.lex_word()
+            
+            found_end = False
+
+            self.start = self.current
+            while True:
+                if self.source[self.current:self.current+9] == "endcmacro":
+                    found_end = True
+                    break
+
+                self.advance()
+
+            if not found_end:
+                error("cmacro was never closed", cmacro_loc); exit(1)
+
+            self.cmacros[cmacro_name] = {"body": self.source[self.start:self.current]}
+            self.current += 9
+            self.start = self.current
+
+            return
+        elif word in self.cmacros:
+            self.add_token(TokenType.CMACRO, self.cmacros[word]["body"])
+            return
 
         self.add_token(TokenType.WORD)
 

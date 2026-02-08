@@ -9,6 +9,7 @@ class TokenType(IntEnum):
     FLOAT = auto()
     CHAR = auto()
     STRING = auto()
+    CMACRO = auto()
 
 @dataclass
 class Token:

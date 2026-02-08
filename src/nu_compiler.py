@@ -104,6 +104,9 @@ class Compiler:
             case OpType.DROP:
                 self.writeln("stack_pop(&stack);", 2)
 
+            case OpType.CMACRO:
+                self.writeln(op.operand, 2)
+
             case OpType.EOF:
                 write_jump = False
                 self.writeln("stack_free(&stack);", 2)

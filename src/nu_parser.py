@@ -42,6 +42,9 @@ class Parser:
                 else:
                     error(f"`{token.text}` is not built-in", token.loc); exit(1)
 
+            case TokenType.CMACRO:
+                self.add_op(OpType.CMACRO, token, token.text)
+
             case _:
                 self.new_method(token)
 
