@@ -16,4 +16,12 @@ macro rot  2 roll endmacro
 macro @char @8 endmacro
 macro !char !8 endmacro
 
+macro @int @64 endmacro
+macro !int !64 endmacro
+
+macro @ptr @64 endmacro
+macro !ptr !64 endmacro
+
 macro sizeof(char) 1 endmacro
+macro sizeof(int)  8 endmacro
+macro sizeof(ptr)  8 endmacro
