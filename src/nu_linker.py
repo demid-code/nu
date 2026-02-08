@@ -5,6 +5,9 @@ OPS_TO_LINK = [
     OpType.IF,
     OpType.ELSE,
     OpType.ENDIF,
+    OpType.WHILE,
+    OpType.DO,
+    OpType.ENDWHILE,
 ]
 
 class Linker:
@@ -39,10 +42,16 @@ class Linker:
 
             match op.type:
                 case OpType.IF:
-                    error("`if` was never closed", op.token.loc); exit(1)
+                    error("`if` was never closed with `else` or `endif`", op.token.loc); exit(1)
 
                 case OpType.ELSE:
-                    error("`else` was never closed", op.token.loc); exit(1)
+                    error("`else` was never closed with `endif`", op.token.loc); exit(1)
+
+                case OpType.WHILE:
+                    error("`while` was never closed with `do`", op.token.loc); exit(1)
+
+                case OpType.DO:
+                    error("`do` was never closed with `endwhile`", op.token.loc); exit(1)
 
                 case _:
                     assert False, f"Unsupported OpType.{op.type.name} in Linker.solve_stack()"
@@ -73,6 +82,29 @@ class Linker:
                         error("`endif` can only close `if` and `else`"); exit(1)
 
                     self.ops[start_idx].operand = op_idx + 1
+
+                case OpType.WHILE:
+                    self.push(op_idx)
+
+                case OpType.DO:
+                    self.empty_stack("do", op.token.loc)
+
+                    while_op, while_idx = self.pop()
+                    if while_op.type != OpType.WHILE:
+                        error("`do` can only close `while`", op.token.loc); exit(1)
+
+                    self.ops[op_idx].operand = while_idx
+                    self.push(op_idx)
+
+                case OpType.ENDWHILE:
+                    self.empty_stack("endwhile", op.token.loc)
+
+                    do_op, do_idx = self.pop()
+                    if do_op.type != OpType.DO:
+                        error("`endwhile` can only close `do`", op.token.loc); exit(1)
+
+                    self.ops[op_idx].operand = do_op.operand + 1
+                    self.ops[do_idx].operand = op_idx + 1
 
                 case _:
                     assert False, f"Unsupported OpType.{op.type.name} in Linker.scan_op()"

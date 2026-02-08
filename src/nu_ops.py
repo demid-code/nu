@@ -41,6 +41,11 @@ class OpType(IntEnum):
     ELSE = auto()
     ENDIF = auto()
 
+    # while loop
+    WHILE = auto()
+    DO = auto()
+    ENDWHILE = auto()
+
     # specific
     CMACRO = auto()
     EOF = auto()
@@ -76,6 +81,11 @@ WORD_TO_OPTYPE = {
     "if":    OpType.IF,
     "else":  OpType.ELSE,
     "endif": OpType.ENDIF,
+
+    # while loop
+    "while":    OpType.WHILE,
+    "do":       OpType.DO,
+    "endwhile": OpType.ENDWHILE,
 }
 
 @dataclass
@@ -85,4 +95,4 @@ class Op:
     operand: any
 
     def __repr__(self) -> str:
-        return f"{self.token.loc}: {self.type.name}{f": {self.operand}" if self.operand != None else ""}"
+        return f"{self.type.name}{f": {self.operand}" if self.operand != None else ""}"

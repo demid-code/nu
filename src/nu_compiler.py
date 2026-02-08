@@ -122,6 +122,16 @@ class Compiler:
             case OpType.ENDIF:
                 pass
 
+            case OpType.WHILE:
+                pass
+
+            case OpType.DO:
+                self.writeln("Value condition = stack_pop(&stack);", 2)
+                self.writeln(f"if (!value_as_bool(condition)) goto addr_{op.operand};", 2)
+
+            case OpType.ENDWHILE:
+                self.writeln(f"goto addr_{op.operand};", 2)
+
             case OpType.CMACRO:
                 self.writeln(op.operand, 2)
 
