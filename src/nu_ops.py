@@ -30,6 +30,7 @@ class OpType(IntEnum):
     # type casting
     TO_INT = auto()
     TO_FLOAT = auto()
+    TO_PTR = auto()
 
     # read
     READ_8 = auto()
@@ -83,6 +84,7 @@ WORD_TO_OPTYPE = {
     # type casting
     "$int":   OpType.TO_INT,
     "$float": OpType.TO_FLOAT,
+    "$ptr":   OpType.TO_PTR,
 
     # read
     "@8":  OpType.READ_8,

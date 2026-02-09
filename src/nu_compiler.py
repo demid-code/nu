@@ -75,6 +75,9 @@ class Compiler:
             case OpType.TO_FLOAT:
                 self.writeln("stack_push(&stack, value_to_float(stack_pop(&stack)));", 2)
 
+            case OpType.TO_PTR:
+                self.writeln("stack_push(&stack, value_to_ptr(stack_pop(&stack)));", 2)
+
             case OpType.EQUAL:
                 self.writeln("Value b = stack_pop(&stack);", 2)
                 self.writeln("Value a = stack_pop(&stack);", 2)

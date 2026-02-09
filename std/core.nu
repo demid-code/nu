@@ -19,8 +19,8 @@ macro !char !8 endmacro
 macro @int @64 endmacro
 macro !int !64 endmacro
 
-macro @ptr @64 endmacro
-macro !ptr !64 endmacro
+macro @ptr @64 $ptr endmacro
+macro !ptr !64      endmacro
 
 macro sizeof(char) 1 endmacro
 macro sizeof(int)  8 endmacro

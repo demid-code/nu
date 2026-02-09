@@ -13,7 +13,7 @@ typedef enum {
     TYPE_PTR,
 } ValueType;
 
-#define INT   int
+#define INT   intptr_t
 #define FLOAT double
 #define PTR   void*
 
@@ -52,6 +52,7 @@ Value value_less(Value a, Value b);
 
 Value value_to_int(Value val);
 Value value_to_float(Value val);
+Value value_to_ptr(Value val);
 
 // STACK
 

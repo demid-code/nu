@@ -142,6 +142,16 @@ Value value_to_float(Value val) {
     exit(1);
 }
 
+Value value_to_ptr(Value val) {
+    switch (val.type) {
+    case TYPE_INT: return VAL_PTR((uint64_t*)(uint64_t)AS_INT(val));
+    case TYPE_PTR: return val;
+    }
+
+    fprintf(stderr, "Error: Unreachable in value_to_ptr\n");
+    exit(1);
+}
+
 // STACK
 
 void stack_init(ValueStack *s) {
