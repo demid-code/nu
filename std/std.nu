@@ -36,7 +36,7 @@ macro cstrlen // cstr -> int
     swap drop swap drop
 endmacro
 
-macro cstreq // str str -> bool
+macro cstreq // cstr cstr -> bool
     over cstrlen over cstrlen == if
         true over cstrlen 0
         while dup 2 pick < do
@@ -45,7 +45,7 @@ macro cstreq // str str -> bool
 
             != if
                 drop drop drop
-                false 2 2
+                false 1 1
             endif
 
             1 +
@@ -56,12 +56,32 @@ macro cstreq // str str -> bool
     endif
 endmacro
 
-macro fputs // filepath buf
-    sizeof(char) over cstrlen 3 roll fwrite drop
+macro streq // str1 len1 str2 len2
+    2 pick over == if
+        drop swap true swap 0 while dup 2 pick < do
+            4 pick over   sizeof(char) * + @char // 1 char
+            4 pick 2 pick sizeof(char) * + @char // 2 char
+
+            != if
+                drop drop drop
+                false 1 1
+            endif
+
+            1 +
+        endwhile
+
+        drop drop swap drop swap drop
+    else
+        drop drop drop drop false
+    endif
 endmacro
 
-macro puts  stdout swap fputs endmacro // buf
-macro eputs stderr swap fputs endmacro // buf
+macro fputs // filepath str len
+    sizeof(char) swap 3 roll fwrite drop
+endmacro
+
+macro puts  stdout rot rot fputs endmacro // str len
+macro eputs stderr rot rot fputs endmacro // str len
 
 macro fputc // filepath char
     sizeof(char) malloc
@@ -72,3 +92,24 @@ endmacro
 
 macro putc  stdout swap fputc endmacro // char
 macro eputc stderr swap fputc endmacro // char
+
+macro Str.data    0                      endmacro
+macro Str.len     Str.data sizeof(ptr) + endmacro
+macro sizeof(Str) Str.len sizeof(int)  + endmacro
+
+macro @Str.data Str.data + @ptr endmacro
+macro @Str.len  Str.len  + @int endmacro
+
+macro !Str.data Str.data + !ptr endmacro
+macro !Str.len  Str.len  + !int endmacro
+
+macro @Str // Str -> cstr len
+    dup @Str.data
+    over @Str.len
+    rot drop
+endmacro
+
+macro !Str // cstr len Str -> Str
+    swap over !Str.len
+    swap over !Str.data
+endmacro

@@ -44,6 +44,7 @@ class Compiler:
 
                 idx = self.strs.index(op.operand)
                 self.writeln(f"stack_push(&stack, VAL_PTR(strs[{idx}]));", 2)
+                self.writeln(f"stack_push(&stack, VAL_INT({len(op.operand.encode().decode("unicode_escape"))}));", 2)
 
             case OpType.PUSH_MEM:
                 index = list(self.mems.keys()).index(op.token.text)
