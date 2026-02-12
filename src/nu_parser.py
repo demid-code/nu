@@ -85,11 +85,7 @@ class Parser:
 
                 elif token.text in self.mems:
                     mem = self.mems[token.text]
-
-                    if mem["proc_mem"]:
-                        self.add_op(OpType.PUSH_PROC_MEM, token, mem["proc_mem_idx"])
-                    else:
-                        self.add_op(OpType.PUSH_MEM, token)
+                    self.add_op(OpType.PUSH_MEM, token)
                 elif token.text == "proc":
                     if self.is_at_end():
                         error("expected procedure name", token.loc); exit(1)

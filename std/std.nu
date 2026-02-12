@@ -88,10 +88,9 @@ macro puts  stdout rot rot fputs endmacro // str len
 macro eputs stderr rot rot fputs endmacro // str len
 
 macro fputc // filepath char
-    sizeof(char) malloc
-    swap over !char
-    dup sizeof(char) 1 4 roll fwrite drop
-    free
+    mem buf sizeof(char) endmem
+    buf !char
+    buf sizeof(char) 1 3 roll fwrite drop
 endmacro
 
 macro putc  stdout swap fputc endmacro // char
