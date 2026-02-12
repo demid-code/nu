@@ -11,6 +11,7 @@ class Parser:
         self.ops = []
 
         self.mems = {}
+        self.procs = {}
 
     def is_at_end(self) -> bool:
         return self.current >= len(self.tokens)
@@ -68,6 +69,19 @@ class Parser:
                     self.mems[name.text] = {"size": mem_size}
                 elif token.text in self.mems:
                     self.add_op(OpType.PUSH_MEM, token)
+                elif token.text == "proc":
+                    if self.is_at_end():
+                        error("expected procedure name", token.loc); exit(1)
+
+                    name, name_idx = self.advance()
+                    if name.type != TokenType.WORD:
+                        error("expected procedure name to be a valid word", token.loc); exit(1)
+
+                    self.procs[name.text] = {"start": token_idx}
+                    self.add_op(OpType.PROC, token, name.text)
+                    return
+                elif token.text in self.procs:
+                    self.add_op(OpType.CALL, token)
                 elif token.text in WORD_TO_OPTYPE:
                     self.add_op(WORD_TO_OPTYPE.get(token.text), token)
                 else:

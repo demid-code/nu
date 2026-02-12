@@ -60,6 +60,11 @@ class OpType(IntEnum):
     DO = auto()
     ENDWHILE = auto()
 
+    # procedure
+    PROC = auto()
+    ENDPROC = auto()
+    CALL = auto()
+
     # specific
     CMACRO = auto()
     EOF = auto()
@@ -113,6 +118,10 @@ WORD_TO_OPTYPE = {
     "while":    OpType.WHILE,
     "do":       OpType.DO,
     "endwhile": OpType.ENDWHILE,
+
+    # procedure
+    "proc":    OpType.PROC,
+    "endproc": OpType.ENDPROC,
 }
 
 @dataclass

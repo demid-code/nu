@@ -23,6 +23,10 @@ cmacro fwrite // buf size count stream -> bytesWritten
     stack_push(&stack, VAL_INT(bw));
 endcmacro
 
+macro cstr_to_str // cstr
+    dup cstrlen
+endmacro
+
 macro cstrlen // cstr -> int
     true 0 while over do
         1 +

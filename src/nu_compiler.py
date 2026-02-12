@@ -177,12 +177,23 @@ class Compiler:
             case OpType.ENDWHILE:
                 self.writeln(f"goto addr_{op.operand};", 2)
 
+            case OpType.PROC:
+                self.writeln(f"goto addr_{op.operand};", 2)
+
+            case OpType.ENDPROC:
+                self.writeln("goto *addrs[AS_INT(stack_pop(&ret_stack))];", 2)
+
+            case OpType.CALL:
+                self.writeln(f"stack_push(&ret_stack, VAL_INT({op_idx + 1}));", 2)
+                self.writeln(f"goto addr_{op.operand};", 2)
+
             case OpType.CMACRO:
                 self.writeln(op.operand, 2)
 
             case OpType.EOF:
                 write_jump = False
                 self.writeln("stack_free(&stack);", 2)
+                self.writeln("stack_free(&ret_stack);", 2)
                 self.writeln("return 0;", 2)
 
             case _:
@@ -200,6 +211,11 @@ class Compiler:
         self.write_mode = "init"
         self.writeln("ValueStack stack;", 1)
         self.writeln("stack_init(&stack);\n", 1)
+
+        self.writeln("ValueStack ret_stack;", 1)
+        self.writeln("stack_init(&ret_stack);\n", 1)
+
+        self.writeln("void* addrs[] = {%s};" % ", ".join([f"&&addr_{x}" for x in range(len(self.ops))]), 1)
 
         if len(self.strs) > 0:
             self.writeln("char* strs[] = {%s};\n" % ", ".join(f"\"{x}\"" for x in self.strs), 1)
