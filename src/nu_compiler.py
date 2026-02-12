@@ -1,7 +1,7 @@
 from nu_ops import OpType, Op
 
 class Compiler:
-    def __init__(self, ops: list[Op], mems: dict[str, dict]):
+    def __init__(self, ops: list[Op], mems: dict[str, dict], procs: dict[str, dict]):
         self.ops = ops
         self.current = 0
 
@@ -9,6 +9,7 @@ class Compiler:
         self.writes = {"init": "", "main": ""}
 
         self.mems = mems
+        self.procs = procs
         self.strs = []
 
     def write(self, txt: str, tabs: int = 0):
@@ -49,6 +50,9 @@ class Compiler:
             case OpType.PUSH_MEM:
                 index = list(self.mems.keys()).index(op.token.text)
                 self.writeln(f"stack_push(&stack, VAL_PTR(&mem_{index}));", 2)
+
+            case OpType.PUSH_PROC_MEM:
+                self.writeln(f"stack_push(&stack, stack_pick(&ret_stack, {op.operand}));", 2)
 
             case OpType.PLUS:
                 self.writeln("Value b = stack_pop(&stack);", 2)
@@ -186,6 +190,15 @@ class Compiler:
             case OpType.CALL:
                 self.writeln(f"stack_push(&ret_stack, VAL_INT({op_idx + 1}));", 2)
                 self.writeln(f"goto addr_{op.operand};", 2)
+
+            case OpType.PREP_PROC_MEM:
+                for mem_name in self.procs[op.operand]["mems"]:
+                    mem = self.procs[op.operand]["mems"][mem_name]
+                    self.writeln(f"stack_push(&ret_stack, VAL_PTR(malloc({mem["size"]})));", 2)
+
+            case OpType.FREE_PROC_MEM:
+                for _ in range(op.operand):
+                    self.writeln("free((void*)AS_PTR(stack_pop(&ret_stack)));", 2)
 
             case OpType.CMACRO:
                 self.writeln(op.operand, 2)

@@ -10,6 +10,7 @@ class OpType(IntEnum):
     PUSH_FLOAT = auto()
     PUSH_STRING = auto()
     PUSH_MEM = auto()
+    PUSH_PROC_MEM = auto()
 
     # arithmetic
     PLUS = auto()
@@ -64,6 +65,10 @@ class OpType(IntEnum):
     PROC = auto()
     ENDPROC = auto()
     CALL = auto()
+
+    # proc mem stuff
+    PREP_PROC_MEM = auto()
+    FREE_PROC_MEM = auto()
 
     # specific
     CMACRO = auto()

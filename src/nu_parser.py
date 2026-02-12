@@ -1,4 +1,4 @@
-from nu_error import Loc, error, exit
+from nu_error import Loc, error, note, exit
 from nu_tokens import TokenType, Token
 from nu_ops import OpType, WORD_TO_OPTYPE, Op
 from nu_evaluator import Evaluator
@@ -12,6 +12,8 @@ class Parser:
 
         self.mems = {}
         self.procs = {}
+
+        self.proc_stack = []
 
     def is_at_end(self) -> bool:
         return self.current >= len(self.tokens)
@@ -65,10 +67,29 @@ class Parser:
                     if not found_end:
                         error("`mem` was never closed", token.loc); exit(1)
 
+                    proc_mem = len(self.proc_stack) > 0
+                    proc_mem_idx = -1
+
                     mem_size = Evaluator(self.tokens[name_idx+1:self.current-1]).evaluate()[0]
-                    self.mems[name.text] = {"size": mem_size}
+
+                    if proc_mem:
+                        proc_name = self.proc_stack[-1]
+
+                        if not "mems" in self.procs[proc_name]:
+                            self.procs[proc_name]["mems"] = {}
+
+                        proc_mem_idx = len(self.procs[proc_name]["mems"].keys())
+                        self.procs[proc_name]["mems"][name.text] = {"mem_idx": proc_mem_idx, "size": mem_size}
+                    else:
+                        self.mems[name.text] = {"size": mem_size}
+
                 elif token.text in self.mems:
-                    self.add_op(OpType.PUSH_MEM, token)
+                    mem = self.mems[token.text]
+
+                    if mem["proc_mem"]:
+                        self.add_op(OpType.PUSH_PROC_MEM, token, mem["proc_mem_idx"])
+                    else:
+                        self.add_op(OpType.PUSH_MEM, token)
                 elif token.text == "proc":
                     if self.is_at_end():
                         error("expected procedure name", token.loc); exit(1)
@@ -77,14 +98,39 @@ class Parser:
                     if name.type != TokenType.WORD:
                         error("expected procedure name to be a valid word", token.loc); exit(1)
 
-                    self.procs[name.text] = {"start": token_idx}
+                    if name.text in self.procs:
+                        error("can't redefine an already existing procedure", token.loc)
+                        note("original procedure located here", self.tokens[self.procs[name.text]["start"]].loc)
+                        exit(1)
+
                     self.add_op(OpType.PROC, token, name.text)
+                    self.procs[name.text] = {"op_start": len(self.ops) - 1}
+
+                    self.proc_stack.append(name.text)
+
+                    return
+                elif token.text == "endproc":
+                    proc_name = self.proc_stack.pop()
+                    
+                    if self.procs[proc_name]["mems"]:
+                        self.ops.insert(self.procs[proc_name]["op_start"] + 1, Op(OpType.PREP_PROC_MEM, None, proc_name))
+                        self.add_op(OpType.FREE_PROC_MEM, token, len(self.procs[proc_name]["mems"].keys()))
+
+                    self.add_op(OpType.ENDPROC, token)
                     return
                 elif token.text in self.procs:
                     self.add_op(OpType.CALL, token)
                 elif token.text in WORD_TO_OPTYPE:
                     self.add_op(WORD_TO_OPTYPE.get(token.text), token)
                 else:
+                    if len(self.proc_stack) > 0:
+                        for proc_name in reversed(self.proc_stack):
+                            proc = self.procs[proc_name]
+
+                            if token.text in proc["mems"]:
+                                self.add_op(OpType.PUSH_PROC_MEM, token, len(proc["mems"].keys()) - proc["mems"][token.text]["mem_idx"] - 1)
+                                return
+
                     error(f"`{token.text}` is not built-in", token.loc); exit(1)
 
             case TokenType.CMACRO:
@@ -96,11 +142,11 @@ class Parser:
     def new_method(self, token):
         assert False, f"Unsupported TokenType.{token.type.name} in Parser.make_op()"
 
-    def parse(self) -> tuple[list[Op], dict[str, dict]]:
+    def parse(self) -> tuple[list[Op], dict[str, dict], dict[str, dict]]:
         while not self.is_at_end():
             self.make_op()
 
         loc = self.tokens[-1].loc.copy()
         loc.col += len(self.tokens[-1].text)
         self.add_op(OpType.EOF, Token(None, "", loc))
-        return (self.ops, self.mems)
+        return (self.ops, self.mems, self.procs)
