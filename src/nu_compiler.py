@@ -54,6 +54,9 @@ class Compiler:
             case OpType.PUSH_PROC_MEM:
                 self.writeln(f"stack_push(&stack, stack_pick(&ret_stack, {op.operand}));", 2)
 
+            case OpType.PUSH_BINDED:
+                self.writeln(f"stack_push(&stack, stack_pick(&bind_stack, {op.operand}));", 2)
+
             case OpType.PLUS:
                 self.writeln("Value b = stack_pop(&stack);", 2)
                 self.writeln("Value a = stack_pop(&stack);", 2)
@@ -200,6 +203,15 @@ class Compiler:
                 for _ in range(op.operand):
                     self.writeln("free((void*)AS_PTR(stack_pop(&ret_stack)));", 2)
 
+            case OpType.BIND:
+                self.writeln(f"for (int i = 0; i < {op.operand}; i++)", 2)
+                self.writeln("    stack_push(&bind_stack, stack.data[stack.size - i - 1]);", 2)
+                self.writeln(f"stack.size -= {op.operand};", 2)
+
+            case OpType.UNBIND:
+                self.writeln(f"for (int i = 0; i < {op.operand}; i++)", 2)
+                self.writeln("    stack_pop(&bind_stack);", 2)
+
             case OpType.CMACRO:
                 self.writeln(op.operand, 2)
 
@@ -207,6 +219,7 @@ class Compiler:
                 write_jump = False
                 self.writeln("stack_free(&stack);", 2)
                 self.writeln("stack_free(&ret_stack);", 2)
+                self.writeln("stack_free(&bind_stack);", 2)
                 self.writeln("return 0;", 2)
 
             case _:
@@ -227,6 +240,9 @@ class Compiler:
 
         self.writeln("ValueStack ret_stack;", 1)
         self.writeln("stack_init(&ret_stack);\n", 1)
+
+        self.writeln("ValueStack bind_stack;", 1)
+        self.writeln("stack_init(&bind_stack);\n", 1)
 
         self.writeln("void* addrs[] = {%s};" % ", ".join([f"&&addr_{x}" for x in range(len(self.ops))]), 1)
 

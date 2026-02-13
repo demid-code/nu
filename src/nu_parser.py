@@ -15,6 +15,9 @@ class Parser:
 
         self.proc_stack = []
 
+        self.bind_names = []
+        self.bind_stack = []
+
     def is_at_end(self) -> bool:
         return self.current >= len(self.tokens)
 
@@ -82,7 +85,6 @@ class Parser:
                         self.procs[proc_name]["mems"][name.text] = {"mem_idx": proc_mem_idx, "size": mem_size}
                     else:
                         self.mems[name.text] = {"size": mem_size}
-
                 elif token.text in self.mems:
                     mem = self.mems[token.text]
                     self.add_op(OpType.PUSH_MEM, token)
@@ -108,7 +110,7 @@ class Parser:
                 elif token.text == "endproc":
                     proc_name = self.proc_stack.pop()
                     
-                    if self.procs[proc_name]["mems"]:
+                    if "mems" in self.procs[proc_name]:
                         self.ops.insert(self.procs[proc_name]["op_start"] + 1, Op(OpType.PREP_PROC_MEM, None, proc_name))
                         self.add_op(OpType.FREE_PROC_MEM, token, len(self.procs[proc_name]["mems"].keys()))
 
@@ -116,6 +118,36 @@ class Parser:
                     return
                 elif token.text in self.procs:
                     self.add_op(OpType.CALL, token)
+                elif token.text == "let":
+                    if self.is_at_end():
+                        error("expected let name bindings", token.loc); exit(1)
+
+                    found_in = False
+
+                    names = []
+                    while not self.is_at_end():
+                        tok, tok_idx = self.advance()
+                        if tok.type != TokenType.WORD:
+                            error("expected let name binding to be a valid word", tok.loc); exit(1)
+
+                        if tok.text == "in":
+                            found_in = True
+                            break
+
+                        names.append(tok.text)
+
+                    if not found_in:
+                        error("`let` was never closed with `in`", token.loc); exit(1)
+
+                    self.bind_names.extend(names)
+                    self.bind_stack.append(len(names))
+
+                    self.add_op(OpType.BIND, token, len(names))
+                elif token.text in self.bind_names:
+                    # self.add_op(OpType.PUSH_BINDED, token, len(self.bind_names) - self.bind_names.index(token.text) - 1)
+                    self.add_op(OpType.PUSH_BINDED, token, self.bind_names.index(token.text))
+                elif token.text == "endlet":
+                    self.add_op(OpType.UNBIND, token, self.bind_stack.pop())
                 elif token.text in WORD_TO_OPTYPE:
                     self.add_op(WORD_TO_OPTYPE.get(token.text), token)
                 else:

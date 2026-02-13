@@ -11,6 +11,7 @@ class OpType(IntEnum):
     PUSH_STRING = auto()
     PUSH_MEM = auto()
     PUSH_PROC_MEM = auto()
+    PUSH_BINDED = auto()
 
     # arithmetic
     PLUS = auto()
@@ -69,6 +70,10 @@ class OpType(IntEnum):
     # proc mem stuff
     PREP_PROC_MEM = auto()
     FREE_PROC_MEM = auto()
+
+    # bindings
+    BIND = auto()
+    UNBIND = auto()
 
     # specific
     CMACRO = auto()
