@@ -144,10 +144,11 @@ class Parser:
 
                     self.add_op(OpType.BIND, token, len(names))
                 elif token.text in self.bind_names:
-                    # self.add_op(OpType.PUSH_BINDED, token, len(self.bind_names) - self.bind_names.index(token.text) - 1)
                     self.add_op(OpType.PUSH_BINDED, token, self.bind_names.index(token.text))
                 elif token.text == "endlet":
-                    self.add_op(OpType.UNBIND, token, self.bind_stack.pop())
+                    bind_len = self.bind_stack.pop()
+                    for _ in range(bind_len): self.bind_names.pop()
+                    self.add_op(OpType.UNBIND, token, bind_len)
                 elif token.text in WORD_TO_OPTYPE:
                     self.add_op(WORD_TO_OPTYPE.get(token.text), token)
                 else:

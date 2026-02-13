@@ -27,38 +27,47 @@ macro cstr_to_str // cstr
     dup cstrlen
 endmacro
 
-macro cstrlen // cstr -> int
-    true 0 while over do
-        1 +
+proc cstrlen // cstr -> int
+    mem cond sizeof(bool) endmem
+    true cond !bool
 
-        2 pick over sizeof(char) * + @char
-        '\0' == if
-            swap drop false swap
-        endif
-    endwhile
-
-    swap drop swap drop
-endmacro
-
-macro cstreq // cstr cstr -> bool
-    over cstrlen over cstrlen == if
-        true over cstrlen 0
-        while dup 2 pick < do
-            4 pick over   sizeof(char) * + @char // 1 char
-            4 pick 2 pick sizeof(char) * + @char // 2 char
-
-            != if
-                drop drop drop
-                false 1 1
-            endif
-
+    let cstr in
+        -1 while cond @bool do
             1 +
+            cstr over + @char
+
+            '\0' == if
+                false cond !bool
+            endif
         endwhile
-        drop drop swap drop swap drop
-    else
-        drop drop false
-    endif
-endmacro
+    endlet
+endproc
+
+proc cstreq // cstr1 cstr2 -> bool
+    let cstr1 cstr2 in
+        cstr1 cstrlen cstr2 cstrlen == if
+            mem len sizeof(int)  endmem
+            mem ret sizeof(bool) endmem
+            
+            cstr1 cstrlen len !int
+            true ret !bool
+
+            0 while dup len @int < do
+                cstr1 over + @char
+                cstr2 2 pick + @char
+
+                != if
+                    drop len @int
+                    false ret !bool
+                endif
+
+                1 +
+            endwhile drop
+
+            ret @bool
+        else false endif
+    endlet
+endproc
 
 macro streq // str1 len1 str2 len2
     2 pick over == if
