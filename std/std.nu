@@ -1,4 +1,5 @@
 include "std/core.nu"
+include "std/math.nu"
 
 cmacro malloc // size -> ptr
     Value size = stack_pop(&stack);
@@ -96,14 +97,48 @@ endmacro
 macro puts  stdout rot rot fputs endmacro // str len
 macro eputs stderr rot rot fputs endmacro // str len
 
-macro fputc // filepath char
+proc fputc // filepath char
     mem buf sizeof(char) endmem
     buf !char
     buf sizeof(char) 1 3 roll fwrite drop
-endmacro
+endproc
 
 macro putc  stdout swap fputc endmacro // char
 macro eputc stderr swap fputc endmacro // char
+
+proc fputd // filepath int
+    mem numsize sizeof(int) endmem
+
+    let fp num in
+        0 num abs while dup 0 > do
+            10 / $int
+            swap 1 + swap
+        endwhile drop numsize !int
+
+        numsize @int
+        num 0 < if 1 + endif
+        dup malloc
+
+        let bufLen buf in
+            num 0 < if
+                '-' buf !char
+            endif
+
+            num abs 0 while dup numsize @int < do
+                swap dup 10 % '0' + buf bufLen 4 pick - 1 - + !char
+                10 / $int swap
+
+                1 +
+            endwhile drop drop
+
+            buf sizeof(char) bufLen fp fwrite drop
+            buf free
+        endlet
+    endlet
+endproc
+
+macro putd  stdout swap fputd endmacro // int
+macro eputd stderr swap fputd endmacro // int
 
 macro Str.data    0                      endmacro
 macro Str.len     Str.data sizeof(ptr) + endmacro
