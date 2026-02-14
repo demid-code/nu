@@ -3,14 +3,16 @@ include "std/string.nu"
 
 // Token
 
-const TOKEN_TYPE_WORD reset    endconst
-const TOKEN_TYPE_INT  1 offset endconst
+const TOKEN_TYPE_WORD   reset    endconst
+const TOKEN_TYPE_INT    1 offset endconst
+const TOKEN_TYPE_FLOAT  1 offset endconst
 
 proc token_type_to_str // int -> str len
     let type in
-        type      TOKEN_TYPE_WORD == if "WORD"
-        else type TOKEN_TYPE_INT  == if "INT"
-        endif endif
+        type      TOKEN_TYPE_WORD   == if "WORD"
+        else type TOKEN_TYPE_INT    == if "INT"
+        else type TOKEN_TYPE_FLOAT  == if "FLOAT"
+        endif endif endif
     endlet
 endproc
 
@@ -75,9 +77,16 @@ proc token_array_free // token_array
     endlet
 endproc
 
-// TODO: handle buffer overflow and realloc array
 proc token_array_push // token_type token_text token_array
     let type text textlen token_array in
+        token_array @TokenArray.size token_array @TokenArray.capacity >= if
+            token_array @TokenArray.capacity 2 * token_array !TokenArray.capacity // increase capacity
+
+            // realloc array data
+            token_array @TokenArray.capacity sizeof(Token) * token_array @TokenArray.data realloc
+            token_array !TokenArray.data
+        endif
+
         type text textlen
         token_array @TokenArray.data token_array @TokenArray.size sizeof(Token) * +
         !Token
@@ -85,9 +94,13 @@ proc token_array_push // token_type token_text token_array
     endlet
 endproc
 
-// TODO: handle wrong indexing
 proc token_array_get // index token_array -> type text textlen
     let index token_array in
+        index 0 < index token_array @TokenArray.size >= or if
+            "Error: Invalid index in token_array_get\n" eputs
+            -1 exit
+        endif
+
         token_array @TokenArray.data index sizeof(Token) * + @Token
     endlet
 endproc
@@ -146,6 +159,13 @@ proc lexer_peek // lexer -> char
     endlet
 endproc
 
+proc lexer_peek_ahead // offset lexer -> char
+    let offset lexer in
+        lexer @Lexer.src drop
+        lexer @Lexer.current offset + sizeof(char) * + @char
+    endlet
+endproc
+
 proc lexer_advance // lexer -> char
     let lexer in
         lexer lexer_peek
@@ -161,30 +181,75 @@ proc lexer_skip_whitespace // lexer
     endlet
 endproc
 
+proc lexer_get_current_str // lexer -> str strlen
+    let lexer in
+        lexer @Lexer.src drop
+        lexer @Lexer.start sizeof(char) * +
+        lexer @Lexer.current lexer @Lexer.start -
+    endlet
+endproc
+
+proc lexer_add_token // type lexer
+    let type lexer in
+        type
+        lexer lexer_get_current_str
+        lexer Lexer.tokens + token_array_push
+    endlet
+endproc
+
 proc lexer_make_word // lexer
     let lexer in
         while lexer lexer_is_at_end not lexer lexer_peek is_whitespace not and do
             lexer lexer_advance
         endwhile
 
-        TOKEN_TYPE_WORD
-        lexer @Lexer.src drop
-        lexer @Lexer.start sizeof(char) * +
-        lexer @Lexer.current lexer @Lexer.start -
-        lexer Lexer.tokens + token_array_push
+        TOKEN_TYPE_WORD lexer lexer_add_token
+    endlet
+endproc
+
+proc lexer_make_number // lexer
+    mem is_float sizeof(bool) endmem
+    false is_float !bool
+
+    let lexer in
+        while lexer lexer_is_at_end not lexer lexer_peek is_digit and do
+            lexer lexer_advance
+        endwhile
+
+        lexer lexer_peek '.' == 1 lexer lexer_peek_ahead is_digit and if
+            true is_float !bool
+            lexer lexer_advance
+
+            while lexer lexer_is_at_end not lexer lexer_peek is_digit and do
+                lexer lexer_advance
+            endwhile
+        endif
+
+        is_float @bool if TOKEN_TYPE_FLOAT else TOKEN_TYPE_INT endif
+        lexer lexer_add_token
     endlet
 endproc
 
 proc lexer_make_token // lexer
     let lexer in
-        lexer lexer_make_word
+        lexer lexer_advance
+        
+        let char in
+            char is_digit if
+                lexer lexer_make_number
+            else char '-' == 1 lexer lexer_peek_ahead is_digit and if
+                lexer lexer_make_number
+            else
+                lexer lexer_make_word
+            endif endif
+        endlet
     endlet
 endproc
 
 proc lexer_lex // lexer
     let lexer in
         lexer lexer_skip_whitespace
-        
+
         while lexer lexer_is_at_end not do
             lexer @Lexer.current lexer !Lexer.start
             lexer lexer_make_token
@@ -196,7 +261,7 @@ endproc
 proc main
     mem lexer sizeof(Lexer) endmem
 
-    lexer "10 10 + print\n" lexer_init
+    lexer "50.2 print" lexer_init
     lexer lexer_lex
 
     lexer Lexer.tokens + token_array_print

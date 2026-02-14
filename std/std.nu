@@ -1,9 +1,21 @@
 include "std/core.nu"
 include "std/math.nu"
 
+cmacro exit
+    Value code = stack_pop(&stack);
+    exit((int)AS_INT(code));
+endcmacro
+
 cmacro malloc // size -> ptr
     Value size = stack_pop(&stack);
     stack_push(&stack, VAL_PTR(malloc((size_t)AS_INT(size))));
+endcmacro
+
+cmacro realloc // size ptr -> ptr
+    Value ptr = stack_pop(&stack);
+    Value size = stack_pop(&stack);
+    void *newPtr = realloc((void*)AS_PTR(ptr), (size_t)AS_INT(size));
+    stack_push(&stack, VAL_PTR(newPtr));
 endcmacro
 
 cmacro free // ptr
@@ -149,5 +161,13 @@ proc is_whitespace // char -> bool
         char '\r' ==
         char '\t' ==
         or or or
+    endlet
+endproc
+
+proc is_digit // char -> bool
+    let char in
+        char '0' >=
+        char '9' <=
+        and
     endlet
 endproc
