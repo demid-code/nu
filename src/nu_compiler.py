@@ -174,6 +174,7 @@ class Compiler:
                 self.writeln(f"if (!value_as_bool(condition)) goto addr_{op.operand};", 2)
 
             case OpType.ELSE:
+                write_jump = False
                 self.writeln(f"goto addr_{op.operand};", 2)
 
             case OpType.ENDIF:
@@ -187,15 +188,19 @@ class Compiler:
                 self.writeln(f"if (!value_as_bool(condition)) goto addr_{op.operand};", 2)
 
             case OpType.ENDWHILE:
+                write_jump = False
                 self.writeln(f"goto addr_{op.operand};", 2)
 
             case OpType.PROC:
+                write_jump = False
                 self.writeln(f"goto addr_{op.operand};", 2)
 
             case OpType.ENDPROC:
+                write_jump = False
                 self.writeln("goto *addrs[AS_INT(stack_pop(&ret_stack))];", 2)
 
             case OpType.CALL:
+                write_jump = False
                 self.writeln(f"stack_push(&ret_stack, VAL_INT({op_idx + 1}));", 2)
                 self.writeln(f"goto addr_{op.operand};", 2)
 
@@ -211,8 +216,6 @@ class Compiler:
             case OpType.BIND:
                 self.writeln(f"for (int i = 0; i < {op.operand}; i++)", 2)
                 self.writeln("    stack_push(&bind_stack, stack_pop(&stack));", 2)
-                # self.writeln("    stack_push(&bind_stack, stack.data[stack.size - i - 1]);", 2)
-                # self.writeln(f"stack.size -= {op.operand};", 2)
 
             case OpType.UNBIND:
                 self.writeln(f"for (int i = 0; i < {op.operand}; i++)", 2)
