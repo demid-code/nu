@@ -140,23 +140,14 @@ endproc
 macro putd  stdout swap fputd endmacro // int
 macro eputd stderr swap fputd endmacro // int
 
-macro Str.data    0                      endmacro
-macro Str.len     Str.data sizeof(ptr) + endmacro
-macro sizeof(Str) Str.len sizeof(int)  + endmacro
+// Char
 
-macro @Str.data Str.data + @ptr endmacro
-macro @Str.len  Str.len  + @int endmacro
-
-macro !Str.data Str.data + !ptr endmacro
-macro !Str.len  Str.len  + !int endmacro
-
-macro @Str // Str -> cstr len
-    dup @Str.data
-    over @Str.len
-    rot drop
-endmacro
-
-macro !Str // cstr len Str -> Str
-    swap over !Str.len
-    swap over !Str.data
-endmacro
+proc is_whitespace // char -> bool
+    let char in
+        char ' '  ==
+        char '\n' ==
+        char '\r' ==
+        char '\t' ==
+        or or or
+    endlet
+endproc

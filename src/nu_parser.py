@@ -156,7 +156,7 @@ class Parser:
                         for proc_name in reversed(self.proc_stack):
                             proc = self.procs[proc_name]
 
-                            if token.text in proc["mems"]:
+                            if ("mems" in proc) and (token.text in proc["mems"]):
                                 self.add_op(OpType.PUSH_PROC_MEM, token, len(proc["mems"].keys()) - proc["mems"][token.text]["mem_idx"] - 1)
                                 return
 

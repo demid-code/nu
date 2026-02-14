@@ -52,7 +52,7 @@ def main():
                     print(token)
                 return
             
-            pre_parser = PreParser(tokens, cmacros, [nu_path, filepath.parent], [filepath.resolve()])
+            pre_parser = PreParser(tokens, cmacros, {}, {}, [nu_path, filepath.parent], [filepath.resolve()])
             tokens = pre_parser.pre_parse()
             if len(tokens) == 0: return
             

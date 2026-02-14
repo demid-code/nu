@@ -6,7 +6,7 @@ from nu_lexer import Lexer
 from nu_evaluator import Evaluator
 
 class PreParser:
-    def __init__(self, tokens: list[Token], cmacros: dict[str, dict] = {}, paths: list[Path] = [], included_paths: list[Path] = []):
+    def __init__(self, tokens: list[Token], cmacros: dict[str, dict] = {}, macros: dict[str, dict] = {}, consts: dict[str, dict] = {}, paths: list[Path] = [], included_paths: list[Path] = []):
         self.tokens = tokens
         self.current = 0
 
@@ -16,8 +16,8 @@ class PreParser:
         self.offset = 0
 
         self.cmacros = cmacros
-        self.macros = {}
-        self.consts = {}
+        self.macros = macros
+        self.consts = consts
 
     def is_at_end(self) -> bool:
         return self.current >= len(self.tokens)
@@ -87,7 +87,7 @@ class PreParser:
             included_tokens, cmacros = lexer.lex()
             self.cmacros.update(cmacros)
 
-            pre_parser = PreParser(included_tokens, self.cmacros, self.paths, self.included_paths)
+            pre_parser = PreParser(included_tokens, self.cmacros, self.macros, self.consts, self.paths, self.included_paths)
             included_tokens = pre_parser.pre_parse()
 
             self.consts.update(pre_parser.consts)
