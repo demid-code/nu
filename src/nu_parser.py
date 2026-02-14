@@ -139,12 +139,12 @@ class Parser:
                     if not found_in:
                         error("`let` was never closed with `in`", token.loc); exit(1)
 
-                    self.bind_names.extend(names)
+                    self.bind_names.extend(list(reversed(names)))
                     self.bind_stack.append(len(names))
 
                     self.add_op(OpType.BIND, token, len(names))
                 elif token.text in self.bind_names:
-                    self.add_op(OpType.PUSH_BINDED, token, self.bind_names.index(token.text))
+                    self.add_op(OpType.PUSH_BINDED, token, len(self.bind_names) - self.bind_names.index(token.text) - 1)
                 elif token.text == "endlet":
                     bind_len = self.bind_stack.pop()
                     for _ in range(bind_len): self.bind_names.pop()

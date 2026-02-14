@@ -205,8 +205,9 @@ class Compiler:
 
             case OpType.BIND:
                 self.writeln(f"for (int i = 0; i < {op.operand}; i++)", 2)
-                self.writeln("    stack_push(&bind_stack, stack.data[stack.size - i - 1]);", 2)
-                self.writeln(f"stack.size -= {op.operand};", 2)
+                self.writeln("    stack_push(&bind_stack, stack_pop(&stack));", 2)
+                # self.writeln("    stack_push(&bind_stack, stack.data[stack.size - i - 1]);", 2)
+                # self.writeln(f"stack.size -= {op.operand};", 2)
 
             case OpType.UNBIND:
                 self.writeln(f"for (int i = 0; i < {op.operand}; i++)", 2)
