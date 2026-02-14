@@ -3,6 +3,7 @@ from pathlib import Path
 from nu_error import error, exit
 from nu_tokens import TokenType, Token
 from nu_lexer import Lexer
+from nu_evaluator import Evaluator
 
 class PreParser:
     def __init__(self, tokens: list[Token], cmacros: dict[str, dict] = {}, paths: list[Path] = [], included_paths: list[Path] = []):
@@ -12,8 +13,11 @@ class PreParser:
         self.paths = paths
         self.included_paths = included_paths
 
+        self.offset = 0
+
         self.cmacros = cmacros
         self.macros = {}
+        self.consts = {}
 
     def is_at_end(self) -> bool:
         return self.current >= len(self.tokens)
@@ -86,6 +90,7 @@ class PreParser:
             pre_parser = PreParser(included_tokens, self.cmacros, self.paths, self.included_paths)
             included_tokens = pre_parser.pre_parse()
 
+            self.consts.update(pre_parser.consts)
             self.macros.update(pre_parser.macros)
 
             self.tokens[token_idx:path_idx+1] = included_tokens
@@ -98,6 +103,47 @@ class PreParser:
         self.tokens[token_idx:path_idx+1] = []
         self.current = token_idx
 
+    def parse_const(self):
+        token, token_idx = self.peek(-1)
+
+        if self.is_at_end():
+            error("expected const name", token.loc); exit(1)
+
+        name, name_idx = self.advance()
+        if name.type != TokenType.WORD:
+            error("expected const name to be a valid word", name.loc); exit(1)
+
+        found_end = False
+
+        while not self.is_at_end():
+            tok, tok_idx = self.advance()
+
+            if tok.type == TokenType.WORD:
+                if tok.text == "endconst":
+                    found_end = True
+                    break
+
+        if not found_end:
+            error("`const` was never closed with `endconst`", token.loc); exit(1)
+
+        evaluator = Evaluator(self.tokens[name_idx+1:self.current-1], self.offset, self.consts)
+        const_val = evaluator.evaluate()[0]
+        self.offset = evaluator.offset
+        self.consts[name.text] = {"value": const_val}
+
+        self.tokens[token_idx:self.current] = []
+        self.current = token_idx
+
+    def insert_const(self):
+        token, token_idx = self.peek(-1)
+        const = self.consts[token.text]
+
+        token_type = None
+        if type(const["value"]) == int:   token_type = TokenType.INT
+        if type(const["value"]) == float: token_type = TokenType.FLOAT
+
+        self.tokens[token_idx:token_idx+1] = [Token(token_type, str(const["value"]), token.loc.copy())]
+
     def scan_token(self):
         token, token_idx = self.advance()
 
@@ -106,6 +152,9 @@ class PreParser:
             if token.text in self.macros: self.insert_macro()
 
             if token.text == "include": self.parse_include()
+
+            if token.text == "const": self.parse_const()
+            if token.text in self.consts: self.insert_const()
 
             if token.text in self.cmacros:
                 self.tokens[token_idx] = Token(TokenType.CMACRO, self.cmacros[token.text]["body"], token.loc.copy())

@@ -1,8 +1,8 @@
 macro $char $int endmacro
 macro $bool $int endmacro
 
-macro true  1 $bool endmacro
-macro false 0 $bool endmacro
+macro true  1 endmacro
+macro false 0 endmacro
 
 macro != == not endmacro
 macro <= >  not endmacro
@@ -25,7 +25,7 @@ macro !bool !64 endmacro
 macro @ptr @64 $ptr endmacro
 macro !ptr !64      endmacro
 
-macro sizeof(char) 1 endmacro
-macro sizeof(int)  8 endmacro
-macro sizeof(bool) 8 endmacro
-macro sizeof(ptr)  8 endmacro
+const sizeof(char) 1 endconst
+const sizeof(int)  8 endconst
+const sizeof(bool) 8 endconst
+const sizeof(ptr)  8 endconst

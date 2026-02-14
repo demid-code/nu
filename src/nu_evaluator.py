@@ -2,9 +2,12 @@ from nu_error import error, exit
 from nu_tokens import TokenType, Token
 
 class Evaluator:
-    def __init__(self, tokens: list[Token]):
+    def __init__(self, tokens: list[Token], offset: int = 0, consts: dict[str, dict] = {}):
         self.tokens = tokens
         self.current = 0
+
+        self.offset = offset
+        self.consts = consts
 
         self.stack = []
 
@@ -33,6 +36,15 @@ class Evaluator:
                     b = self.pop()
                     a = self.pop()
                     self.push(a + b)
+                elif token.text == "reset":
+                    self.offset = 0
+                    self.push(self.offset)
+                elif token.text == "offset":
+                    val = self.pop()
+                    self.offset += val
+                    self.push(self.offset)
+                elif token.text in self.consts:
+                    self.push(self.consts[token.text]["value"])
                 else:
                     error(f"`{token.text}` is unsupported operation in runtime evaluation", token.loc); exit(1)
 
