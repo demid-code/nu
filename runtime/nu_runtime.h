@@ -45,6 +45,7 @@ Value value_add(Value a, Value b);
 Value value_sub(Value a, Value b);
 Value value_mul(Value a, Value b);
 Value value_div(Value a, Value b);
+Value value_mod(Value a, Value b);
 
 Value value_equal(Value a, Value b);
 Value value_greater(Value a, Value b);

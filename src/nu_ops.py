@@ -18,6 +18,7 @@ class OpType(IntEnum):
     MINUS = auto()
     MULTIPLY = auto()
     DIVIDE = auto()
+    MODULO = auto()
 
     # comparing
     EQUAL = auto()
@@ -85,6 +86,7 @@ WORD_TO_OPTYPE = {
     "-": OpType.MINUS,
     "*": OpType.MULTIPLY,
     "/": OpType.DIVIDE,
+    "%": OpType.MODULO,
 
     # comparing
     "==": OpType.EQUAL,

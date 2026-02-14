@@ -82,6 +82,19 @@ Value value_div(Value a, Value b) {
     }
 }
 
+Value value_mod(Value a, Value b) {
+    if (a.type == b.type) {
+        switch (a.type) {
+        case TYPE_INT:   return VAL_INT(AS_INT(a) % AS_INT(b));
+        case TYPE_FLOAT: fprintf(stderr, "Error: Can't apply modulo to floats"); exit(1);
+        case TYPE_PTR:   fprintf(stderr, "Error: Can't apply modulo to pointers"); exit(1);
+        }
+    } else {
+        fprintf(stderr, "Error: Invalid types in value_mod\n");
+        exit(1);
+    }
+}
+
 Value value_equal(Value a, Value b) {
     if (a.type != b.type) return VAL_INT(0);
 
