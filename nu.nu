@@ -131,7 +131,7 @@ macro !Lexer.start   Lexer.start   + !int endmacro
 macro !Lexer.current Lexer.current + !int endmacro
 
 proc lexer_init // lexer src(str len)
-    let lexer src srclen in
+    let src srclen lexer in
         src srclen lexer !Lexer.src
         0 lexer !Lexer.start
         0 lexer !Lexer.current
@@ -142,6 +142,7 @@ endproc
 proc lexer_free // lexer
     let lexer in
         lexer Lexer.tokens + token_array_free
+        lexer @Lexer.src drop free
     endlet
 endproc
 
@@ -173,6 +174,16 @@ proc lexer_advance // lexer -> char
     endlet
 endproc
 
+proc lexer_match // char lexer -> bool
+    let char lexer in
+        lexer lexer_peek char == if
+            lexer lexer_advance drop true
+        else
+            false
+        endif
+    endlet
+endproc
+
 proc lexer_skip_whitespace // lexer
     let lexer in
         while lexer lexer_is_at_end not lexer lexer_peek is_whitespace and do
@@ -194,6 +205,18 @@ proc lexer_add_token // type lexer
         type
         lexer lexer_get_current_str
         lexer Lexer.tokens + token_array_push
+    endlet
+endproc
+
+proc lexer_skip_comment // lexer
+    let lexer in
+        '/' lexer lexer_match if
+            while lexer lexer_is_at_end not lexer lexer_peek '\n' == not and do
+                lexer lexer_advance
+            endwhile
+        else
+            TOKEN_TYPE_WORD lexer lexer_add_token
+        endif
     endlet
 endproc
 
@@ -237,11 +260,13 @@ proc lexer_make_token // lexer
         let char in
             char is_digit if
                 lexer lexer_make_number
+            else char '/' == if
+                lexer lexer_skip_comment
             else char '-' == 1 lexer lexer_peek_ahead is_digit and if
                 lexer lexer_make_number
             else
                 lexer lexer_make_word
-            endif endif
+            endif endif endif
         endlet
     endlet
 endproc
@@ -258,13 +283,42 @@ proc lexer_lex // lexer
     endlet
 endproc
 
+proc usage
+    "Usage: " puts 0 argv dup cstrlen puts " <command>\n" puts
+    "Commands:\n" puts
+    "    help              Prints usage\n" puts
+    "    lex <filepath>    Produces tokens and prints them\n" puts
+    "\n" puts
+endproc
+
 proc main
     mem lexer sizeof(Lexer) endmem
 
-    lexer "50.2 print" lexer_init
-    lexer lexer_lex
+    argc 2 < if
+        usage
+        "Error: No command is provided\n" eputs
+        -1 exit
+    endif
 
-    lexer Lexer.tokens + token_array_print
-    
-    lexer lexer_free
+    1 argv
+    let command in
+        command "help" drop cstreq if
+            usage
+            0 exit
+        else command "lex" drop cstreq if
+            argc 3 < if
+                "Error: Expected <filepath> for `" eputs command dup cstrlen eputs "` command\n" eputs
+                -1 exit
+            endif
+
+            2 argv dup cstrlen read_file lexer lexer_init
+            lexer lexer_lex
+            lexer Lexer.tokens + token_array_print
+            lexer lexer_free
+        else
+            usage
+            "Error: Invalid command `" eputs command dup cstrlen eputs "`\n" eputs
+            -1 exit
+        endif endif
+    endlet
 endproc main

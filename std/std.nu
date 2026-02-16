@@ -1,6 +1,8 @@
 include "std/core.nu"
 include "std/math.nu"
 
+cmacro NULL stack_push(&stack, VAL_PTR(NULL)); endcmacro // ... -> ptr
+
 cmacro exit
     Value code = stack_pop(&stack);
     exit((int)AS_INT(code));
@@ -35,6 +37,71 @@ cmacro fwrite // buf size count stream -> bytesWritten
     size_t bw = fwrite((void*)AS_PTR(buf), (size_t)AS_INT(size), (size_t)AS_INT(count), (FILE*)AS_PTR(stream));
     stack_push(&stack, VAL_INT(bw));
 endcmacro
+
+cmacro fopen // path pathlen mode modelen -> file
+    stack_pop(&stack);
+    Value mode = stack_pop(&stack);
+    stack_pop(&stack);
+    Value path = stack_pop(&stack);
+    FILE *f = fopen((char*)AS_PTR(path), (char*)AS_PTR(mode));
+    stack_push(&stack, VAL_PTR(f));
+endcmacro
+
+cmacro fclose // file -> int
+    Value file = stack_pop(&stack);
+    stack_push(&stack, VAL_INT(fclose((FILE*)AS_PTR(file))));
+endcmacro
+
+cmacro SEEK_SET stack_push(&stack, VAL_INT(SEEK_SET)); endcmacro // ... -> int
+cmacro SEEK_CUR stack_push(&stack, VAL_INT(SEEK_CUR)); endcmacro // ... -> int
+cmacro SEEK_END stack_push(&stack, VAL_INT(SEEK_END)); endcmacro // ... -> int
+
+cmacro fseek // file offset origin -> int
+    Value origin = stack_pop(&stack);
+    Value offset = stack_pop(&stack);
+    Value file = stack_pop(&stack);
+    stack_push(&stack, VAL_INT(fseek((FILE*)AS_PTR(file), (long)AS_INT(offset), (int)AS_INT(origin))));
+endcmacro
+
+cmacro ftell // file -> int
+    Value file = stack_pop(&stack);
+    stack_push(&stack, VAL_INT(ftell((FILE*)AS_PTR(file))));
+endcmacro
+
+cmacro fread // buf size count file -> int
+    Value file = stack_pop(&stack);
+    Value count = stack_pop(&stack);
+    Value size = stack_pop(&stack);
+    Value buf = stack_pop(&stack);
+    stack_push(&stack, VAL_INT(fread((void*)AS_PTR(buf), (size_t)AS_INT(size), (size_t)AS_INT(count), (FILE*)AS_PTR(file))));
+endcmacro
+
+// WARNING: allocates dynamic string, free it later with free
+proc read_file // filepath filepathlen -> str strlen
+    mem buf      sizeof(ptr) endmem
+    mem filesize sizeof(int) endmem
+
+    "rb" fopen
+    
+    dup NULL == if
+        "Error: Can't open file\n" eputs
+        -1 exit
+    endif
+
+    let file in
+        file 0 SEEK_END fseek drop
+        file ftell
+        file 0 SEEK_SET fseek drop
+
+        dup filesize !int
+        malloc buf !ptr
+
+        buf @ptr sizeof(char) filesize @int file fread drop
+
+        buf @ptr filesize @int
+        file fclose drop
+    endlet
+endproc
 
 macro cstr_to_str // cstr
     dup cstrlen

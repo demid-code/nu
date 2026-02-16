@@ -52,6 +52,8 @@ class OpType(IntEnum):
     DROP = auto()
     PICK = auto()
     ROLL = auto()
+    ARGC = auto()
+    ARGV = auto()
 
     # if-else
     IF = auto()
@@ -120,6 +122,8 @@ WORD_TO_OPTYPE = {
     "drop":  OpType.DROP,
     "pick":  OpType.PICK,
     "roll":  OpType.ROLL,
+    "argc":  OpType.ARGC,
+    "argv":  OpType.ARGV,
 
     # if-else
     "if":    OpType.IF,

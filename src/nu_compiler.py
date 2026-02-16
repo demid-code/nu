@@ -169,6 +169,13 @@ class Compiler:
                 self.writeln("Value index = stack_pop(&stack);", 2)
                 self.writeln("stack_roll(&stack, AS_INT(index));", 2)
 
+            case OpType.ARGC:
+                self.writeln("stack_push(&stack, VAL_INT(argc));", 2)
+
+            case OpType.ARGV:
+                self.writeln("Value index = stack_pop(&stack);", 2)
+                self.writeln("stack_push(&stack, VAL_PTR(argv[AS_INT(index)]));", 2)
+
             case OpType.IF:
                 self.writeln("Value condition = stack_pop(&stack);", 2)
                 self.writeln(f"if (!value_as_bool(condition)) goto addr_{op.operand};", 2)
@@ -265,7 +272,7 @@ class Compiler:
         self.writeln("goto addr_0;\n", 1)
 
         output = "#include \"nu_runtime.h\"\n\n"
-        output += "int main() {\n"
+        output += "int main(int argc, char *argv[]) {\n"
         output += self.writes["init"]
         output += self.writes["main"]
         output += "}\n"
