@@ -283,16 +283,85 @@ proc lexer_lex // lexer
     endlet
 endproc
 
+// Parser
+
+const Parser.tokens  reset              endconst
+const Parser.current sizeof(ptr) offset endconst
+const sizeof(Parser) sizeof(int) offset endconst
+
+macro @Parser.tokens  Parser.tokens  + @ptr endmacro // parser -> ptr
+macro @Parser.current Parser.current + @int endmacro // parser -> int
+
+macro !Parser.tokens  Parser.tokens  + !ptr endmacro // ptr parser
+macro !Parser.current Parser.current + !int endmacro // int parser
+
+proc parser_init // token_array parser
+    let token_array parser in
+        token_array parser !Parser.tokens
+        0 parser !Parser.current
+    endlet
+endproc
+
+proc parser_free // parser
+    drop // implement later on if you allocate anything
+endproc
+
+proc parser_is_at_end // parser -> bool
+    let parser in
+        parser @Parser.current
+        parser @Parser.tokens @TokenArray.size >=
+    endlet
+endproc
+
+proc parser_peek // parser -> Token
+    let parser in
+        parser @Parser.tokens @TokenArray.data parser @Parser.current sizeof(Token) * + @Token
+    endlet
+endproc
+
+proc parser_advance // parser -> Token
+    let parser in
+        parser parser_peek
+        parser @Parser.current 1 + parser !Parser.current
+    endlet
+endproc
+
+proc parser_make_op // parser
+    let parser in
+        parser parser_advance
+
+        let type text textlen in
+            type TOKEN_TYPE_WORD == if
+                "parse word\n" puts
+            else type TOKEN_TYPE_INT == if
+                "parse int\n" puts
+            else type TOKEN_TYPE_FLOAT == if
+                "parse float\n" puts
+            endif endif endif
+        endlet
+    endlet
+endproc
+
+proc parser_parse // parser
+    let parser in
+        while parser parser_is_at_end not do
+            parser parser_make_op
+        endwhile
+    endlet
+endproc
+
 proc usage
-    "Usage: " puts 0 argv dup cstrlen puts " <command>\n" puts
-    "Commands:\n" puts
-    "    help              Prints usage\n" puts
-    "    lex <filepath>    Produces tokens and prints them\n" puts
-    "\n" puts
+    "Usage: " puts 0 argv dup cstrlen puts " <command>\n"       puts
+    "Commands:\n"                                               puts
+    "    help                Prints usage\n"                    puts
+    "    lex   <filepath>    Produces tokens and prints them\n" puts
+    "    parse <filepath>    Produces ops and prints them\n"    puts
+    "\n"                                                        puts
 endproc
 
 proc main
-    mem lexer sizeof(Lexer) endmem
+    mem lexer  sizeof(Lexer)  endmem
+    mem parser sizeof(Parser) endmem
 
     argc 2 < if
         usage
@@ -305,15 +374,29 @@ proc main
         command "help" drop cstreq if
             usage
             0 exit
-        else command "lex" drop cstreq if
+        else command "lex" drop cstreq command "parse" drop cstreq or if
             argc 3 < if
                 "Error: Expected <filepath> for `" eputs command dup cstrlen eputs "` command\n" eputs
                 -1 exit
             endif
 
+            // lexing
+
             2 argv dup cstrlen read_file lexer lexer_init
             lexer lexer_lex
-            lexer Lexer.tokens + token_array_print
+
+            command "lex" drop cstreq if
+                lexer Lexer.tokens + token_array_print
+                lexer lexer_free
+                0 exit
+            endif
+
+            // parsing
+            lexer Lexer.tokens + parser parser_init
+            parser parser_parse
+
+            // freeing
+            parser parser_free
             lexer lexer_free
         else
             usage
