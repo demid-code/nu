@@ -94,7 +94,7 @@ class Parser:
 
                     name, name_idx = self.advance()
                     if name.type != TokenType.WORD:
-                        error("expected procedure name to be a valid word", token.loc); exit(1)
+                        error("expected procedure name to be a valid word", name.loc);exit(1)
 
                     if name.text in self.procs:
                         error("can't redefine an already existing procedure", token.loc)

@@ -149,25 +149,28 @@ proc cstreq // cstr1 cstr2 -> bool
     endlet
 endproc
 
-macro streq // str1 len1 str2 len2
-    2 pick over == if
-        drop swap true swap 0 while dup 2 pick < do
-            4 pick over   sizeof(char) * + @char // 1 char
-            4 pick 2 pick sizeof(char) * + @char // 2 char
+proc streq // str1 strlen1 str2 str2len -> bool
+    let str1 strlen1 str2 strlen2 in
+        strlen1 strlen2 == if
+            mem ret sizeof(bool) endmem
+            true ret !bool
 
-            != if
-                drop drop drop
-                false 1 1
-            endif
+            0 while dup strlen1 < do
+                str1 over + @char
+                str2 2 pick + @char
 
-            1 +
-        endwhile
+                != if
+                    drop strlen1
+                    false ret !bool
+                endif
 
-        drop drop swap drop swap drop
-    else
-        drop drop drop drop false
-    endif
-endmacro
+                1 +
+            endwhile drop
+
+            ret @bool
+        else false endif
+    endlet
+endproc
 
 macro fputs // filepath str len
     sizeof(char) swap 3 roll fwrite drop
@@ -189,30 +192,34 @@ proc fputd // filepath int
     mem numsize sizeof(int) endmem
 
     let fp num in
-        0 num abs while dup 0 > do
-            10 / $int
-            swap 1 + swap
-        endwhile drop numsize !int
+        num 0 == if
+            fp '0' fputc
+        else
+            0 num abs while dup 0 > do
+                10 / $int
+                swap 1 + swap
+            endwhile drop numsize !int
 
-        numsize @int
-        num 0 < if 1 + endif
-        dup malloc
+            numsize @int
+            num 0 < if 1 + endif
+            dup malloc
 
-        let bufLen buf in
-            num 0 < if
-                '-' buf !char
-            endif
+            let bufLen buf in
+                num 0 < if
+                    '-' buf !char
+                endif
 
-            num abs 0 while dup numsize @int < do
-                swap dup 10 % '0' + buf bufLen 4 pick - 1 - + !char
-                10 / $int swap
+                num abs 0 while dup numsize @int < do
+                    swap dup 10 % '0' + buf bufLen 4 pick - 1 - + !char
+                    10 / $int swap
 
-                1 +
-            endwhile drop drop
+                    1 +
+                endwhile drop drop
 
-            buf sizeof(char) bufLen fp fwrite drop
-            buf free
-        endlet
+                buf sizeof(char) bufLen fp fwrite drop
+                buf free
+            endlet
+        endif
     endlet
 endproc
 

@@ -1,6 +1,55 @@
 include "std/std.nu"
 include "std/string.nu"
 
+// Loc
+
+const Loc.filepath reset              endconst
+const Loc.line     sizeof(Str) offset endconst
+const Loc.col      sizeof(int) offset endconst
+const sizeof(Loc)  sizeof(int) offset endconst
+
+macro @Loc.filepath Loc.filepath + @Str endmacro
+macro @Loc.line     Loc.line     + @int endmacro
+macro @Loc.col      Loc.col      + @int endmacro
+
+macro !Loc.filepath Loc.filepath + !Str endmacro
+macro !Loc.line     Loc.line     + !int endmacro
+macro !Loc.col      Loc.col      + !int endmacro
+
+proc @Loc // Loc -> filepath filepathlen line col
+    let loc in
+        loc @Loc.filepath
+        loc @Loc.line
+        loc @Loc.col
+    endlet
+endproc
+
+proc !Loc // filepath filepathlen line col Loc
+    let filepath filepathlen line col loc in
+        filepath filepathlen loc !Loc.filepath
+        line loc !Loc.line
+        col loc !Loc.col
+    endlet
+endproc
+
+proc fputloc // file Loc
+    let file filepath filepathlen line col in
+        file filepath filepathlen fputs
+        file ':' fputc
+        file line fputd
+        file ':' fputc
+        file col fputd
+    endlet
+endproc
+
+macro putloc
+    stdout 4 roll 4 roll 4 roll 4 roll fputloc
+endmacro
+
+macro eputloc
+    stderr stdout 4 roll 4 roll 4 roll 4 roll fputloc
+endmacro
+
 // Token
 
 const TOKEN_TYPE_WORD   reset    endconst
@@ -18,30 +67,36 @@ endproc
 
 const Token.type    reset              endconst
 const Token.text    sizeof(int) offset endconst
-const sizeof(Token) sizeof(Str) offset endconst
+const Token.loc     sizeof(Str) offset endconst
+const sizeof(Token) sizeof(Loc) offset endconst
 
 macro @Token.type Token.type + @int endmacro
 macro @Token.text Token.text + @Str endmacro
+macro @Token.loc  Token.loc  + @Loc endmacro
 
 macro !Token.type Token.type + !int endmacro
 macro !Token.text Token.text + !Str endmacro
+macro !Token.loc  Token.loc  + !Loc endmacro
 
-proc @Token // token -> type text textlen
+proc @Token // token -> type text loc
     let token in
         token @Token.type
         token @Token.text
+        token @Token.loc
     endlet
 endproc
 
-proc !Token // type text textlen token
-    let type text textlen token in
+proc !Token // type text textlen filepath filepathlen line col token
+    let type text textlen filepath filepathlen line col token in
         type token !Token.type
         text textlen token !Token.text
+        filepath filepathlen line col token !Token.loc
     endlet
 endproc
 
-proc print_token // type text textlen
-    let type text textlen in
+proc print_token // type text textlen filepath filepathlen line col
+    let type text textlen filepath filepathlen line col in
+        filepath filepathlen line col putloc ": " puts
         type token_type_to_str puts
         ": `" puts
         text textlen puts "`\n" puts
@@ -77,8 +132,8 @@ proc token_array_free // token_array
     endlet
 endproc
 
-proc token_array_push // token_type token_text token_array
-    let type text textlen token_array in
+proc token_array_push // token_type token_text token_loc token_array
+    let type text textlen filepath filepathlen line col token_array in
         token_array @TokenArray.size token_array @TokenArray.capacity >= if
             token_array @TokenArray.capacity 2 * token_array !TokenArray.capacity // increase capacity
 
@@ -87,14 +142,14 @@ proc token_array_push // token_type token_text token_array
             token_array !TokenArray.data
         endif
 
-        type text textlen
+        type text textlen filepath filepathlen line col
         token_array @TokenArray.data token_array @TokenArray.size sizeof(Token) * +
         !Token
         token_array @TokenArray.size 1 + token_array !TokenArray.size
     endlet
 endproc
 
-proc token_array_get // index token_array -> type text textlen
+proc token_array_get // index token_array -> type text textlen filepath filepathlen line col
     let index token_array in
         index 0 < index token_array @TokenArray.size >= or if
             "Error: Invalid index in token_array_get\n" eputs
@@ -117,7 +172,8 @@ endproc
 // Lexer
 
 const Lexer.src     reset                     endconst
-const Lexer.start   sizeof(Str)        offset endconst
+const Lexer.loc     sizeof(Str)        offset endconst
+const Lexer.start   sizeof(Loc)        offset endconst
 const Lexer.current sizeof(int)        offset endconst
 const Lexer.tokens  sizeof(int)        offset endconst
 const sizeof(Lexer) sizeof(TokenArray) offset endconst
@@ -125,14 +181,17 @@ const sizeof(Lexer) sizeof(TokenArray) offset endconst
 macro @Lexer.src     Lexer.src     + @Str endmacro
 macro @Lexer.start   Lexer.start   + @int endmacro
 macro @Lexer.current Lexer.current + @int endmacro
+macro @Lexer.loc     Lexer.loc     + @Loc endmacro
 
 macro !Lexer.src     Lexer.src     + !Str endmacro
+macro !Lexer.loc     Lexer.loc     + !Loc endmacro
 macro !Lexer.start   Lexer.start   + !int endmacro
 macro !Lexer.current Lexer.current + !int endmacro
 
-proc lexer_init // lexer src(str len)
-    let src srclen lexer in
+proc lexer_init // filepath(str len) src(str len) lexer
+    let filepath filepathlen src srclen lexer in
         src srclen lexer !Lexer.src
+        filepath filepathlen 1 1 lexer !Lexer.loc
         0 lexer !Lexer.start
         0 lexer !Lexer.current
         lexer Lexer.tokens + token_array_init
@@ -187,6 +246,10 @@ endproc
 proc lexer_skip_whitespace // lexer
     let lexer in
         while lexer lexer_is_at_end not lexer lexer_peek is_whitespace and do
+            lexer lexer_peek '\n' == if
+                lexer @Lexer.loc drop 1 + 0 lexer !Lexer.loc
+            endif
+
             lexer lexer_advance
         endwhile
     endlet
@@ -204,6 +267,7 @@ proc lexer_add_token // type lexer
     let type lexer in
         type
         lexer lexer_get_current_str
+        lexer @Lexer.loc
         lexer Lexer.tokens + token_array_push
     endlet
 endproc
@@ -264,9 +328,13 @@ proc lexer_make_token // lexer
                 lexer lexer_skip_comment
             else char '-' == 1 lexer lexer_peek_ahead is_digit and if
                 lexer lexer_make_number
+            else char is_whitespace if
+                char '\n' == if
+                    lexer @Lexer.loc drop 1 + 0 lexer !Lexer.loc
+                endif
             else
                 lexer lexer_make_word
-            endif endif endif
+            endif endif endif endif
         endlet
     endlet
 endproc
@@ -276,9 +344,12 @@ proc lexer_lex // lexer
         lexer lexer_skip_whitespace
 
         while lexer lexer_is_at_end not do
+            lexer @Lexer.loc
+            lexer @Lexer.current lexer @Lexer.start - +
+            lexer !Lexer.loc
             lexer @Lexer.current lexer !Lexer.start
             lexer lexer_make_token
-            lexer lexer_skip_whitespace
+            // lexer lexer_skip_whitespace
         endwhile
     endlet
 endproc
@@ -382,7 +453,7 @@ proc main
 
             // lexing
 
-            2 argv dup cstrlen read_file lexer lexer_init
+            2 argv dup cstrlen over over read_file lexer lexer_init
             lexer lexer_lex
 
             command "lex" drop cstreq if
